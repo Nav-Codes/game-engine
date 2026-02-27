@@ -80,7 +80,7 @@ Scene::Scene(const char *sceneName, const char *mapPath, int windowWidth, int wi
         e.addComponent<Transform>(Vector2D(t.position.x, t.position.y), 0.0f, 1.0f);
         e.addComponent<Velocity>(Vector2D(0,-1), 100.0f);
 
-        Animation anim = AssetManager::getAnimation("enemy");
+        auto& anim = AssetManager::getAnimation("enemy");
         e.addComponent<Animation>(anim);
 
         SDL_Texture* tex = TextureManager::load("../assets/animations/enemy_anim.png");
@@ -89,7 +89,7 @@ Scene::Scene(const char *sceneName, const char *mapPath, int windowWidth, int wi
 
         e.addComponent<Sprite>(tex, src, dest);
 
-        Collider c = e.addComponent<Collider>("projectile");
+        auto& c = e.addComponent<Collider>("projectile");
         c.rect.w = dest.w;
         c.rect.h = dest.h;
 
