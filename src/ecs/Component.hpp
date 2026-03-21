@@ -10,6 +10,7 @@
 #include <unordered_map>
 
 #include "AnimationClip.hpp"
+#include "Entity.hpp"
 #include "utils/Vector2D.hpp"
 
 using namespace std;
@@ -44,6 +45,8 @@ struct Animation {
     float time{}; //time is accumulated for curr frame
     int currentFrame{}; //index of curr frame
     float speed = 0.1f; //time per frame
+    string oldClip{};
+    function<string(Entity&)> animCallback = nullptr; // returns newClip so animationSystem can handle rest of animation thingies
 };
 
 struct Camera {

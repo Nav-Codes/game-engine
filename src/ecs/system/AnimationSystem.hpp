@@ -16,52 +16,37 @@ using namespace std;
 //check if the animation has been switched
 //playback system: advances the animation
 
+//if u have multiple animations, there would be a lot of if checks just checking what this animation thingy is for
+//need to make more generic system that does not use hard coded strings in the update method
+//maybe define animation callbacks for each type of thing (ie. player anim callback, projectile anim callback)?
+//and then call them here, making it more general if animations do different things for different entities
+//but where would we define the callbacks? ie. need to ensure readability and easy extension type shit
+//will also need to consider which xml file they will use bc different animations will use different things
+//can return values that help the rest of the update function to run when considering different xml files
+
+
+//create emit and subscribe functions here
+//when creating entities with sprites, define their animation behaviour
+//then subscribe that behaviour to a method caller
+//emit will happen every frame...
+//would need an anim info component?
+
 class AnimationSystem {
 private:
-    string oldAnim;
+    // string oldAnim;
 public:
-    void update(const vector<unique_ptr<Entity>>& entities, float dt) {
+    void update(const vector<unique_ptr<Entity>>& entities, float dt) { //this contains all the entities in the game
         for (auto& e : entities) {
-            if (e->hasComponent<Animation>() && e->hasComponent<Velocity>()) {
+            if (e->hasComponent<Animation>()) {
                 auto& anim = e->getComponent<Animation>();
-                auto& velocity = e->getComponent<Velocity>();
 
                 string newClip;
+                if (anim.animCallback != nullptr) {
+                    newClip = anim.animCallback(*e);
+                }
 
-                if (e->hasComponent<PlayerTag>()) {
-                    if (velocity.direction.x > 0.0f) {
-                        newClip = oldAnim = "fly_right";
-                    }
-                    else if (velocity.direction.x < 0.0f) {
-                        newClip = oldAnim = "fly_left";
-                    }
-                    else if (velocity.direction.y > 0.0f) {
-                        newClip = oldAnim = "fly_down";
-                    }
-                    else if (velocity.direction.y < 0.0f) {
-                        newClip = oldAnim = "fly_up";
-                    }
-                    else {
-                        if (oldAnim == "fly_right") {
-                            newClip = "idle_right";
-                        }
-                        else if (oldAnim == "fly_left") {
-                            newClip = "idle_left";
-                        }
-                        else if (oldAnim == "fly_up") {
-                            newClip = "idle_up";
-                        }
-                        else if (oldAnim == "fly_down") {
-                            newClip = "idle_down";
-                        }
-                        else {
-                            newClip = "idle_right";
-                        }
-                    }
-                }
-                else {
-                    newClip = "idle_right";
-                }
+                //put this  if statement into a new function and make it return new clip
+                //so that the stuff under it can handle whatever it needs to handle
 
                 //check if the animation has switched
                 //if the chosen clip is different from the current one, switch to new clip, reset time and frame index
@@ -86,7 +71,6 @@ public:
                     //wrap around % so it loops when reaching the end of the clip
                     anim.currentFrame = (anim.currentFrame+1) % totalAnimationFrames;
                 }
-
             }
         }
     }

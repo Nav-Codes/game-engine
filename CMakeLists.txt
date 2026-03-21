@@ -59,6 +59,8 @@ add_executable(game-engine src/main.cpp
         src/manager/Scene.hpp
         src/manager/Scene.cpp
         src/manager/SceneManager.hpp
+        src/ecs/system/AnimationCallbacks/PlayerAnim.hpp
+        src/ecs/system/AnimationCallbacks/ProjectileCallback.hpp
 )
 
 target_link_libraries(game-engine

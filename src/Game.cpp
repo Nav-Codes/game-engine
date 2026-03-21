@@ -66,7 +66,7 @@ void Game::init(const char *title, int width, int height, bool fullscreen) {
     //start level 1
     sceneManager.changeSceneDeferred("level1");
 
-    //resolve scene callbakc
+    //resolve scene callback
     onSceneChangeRequest = [this](string sceneName) {
         if (sceneManager.currentScene->getName() == "level2" && sceneName=="level2") {
             cout << "u win" << endl;

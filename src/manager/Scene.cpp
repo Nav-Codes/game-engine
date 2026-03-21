@@ -3,13 +3,15 @@
 //
 
 #include "Scene.hpp"
-
 #include "AssetManager.hpp"
+#include "AnimationCallbacks/PlayerAnim.hpp"
+#include "AnimationCallbacks/ProjectileCallback.hpp"
 
 Scene::Scene(const char *sceneName, const char *mapPath, int windowWidth, int windowHeight) : name(sceneName) {
 //load our map
     world.getMap().load(mapPath, TextureManager::load("../assets/spritesheet.png"));
 
+    //get colliders
     for (auto &collider : world.getMap().colliders) {
         auto& e = world.createEntity();
         e.addComponent<Transform>(Vector2D(collider.rect.x, collider.rect.y), 0.0f, 1.0f);
@@ -26,7 +28,7 @@ Scene::Scene(const char *sceneName, const char *mapPath, int windowWidth, int wi
         e.addComponent<Sprite>(tex, colSrc, colDst);
     }
 
-    //add entities
+    //add coins to designated points on the map
     for (auto &collider : world.getMap().spawnPoints) {
         auto& e = world.createEntity();
         e.addComponent<Transform>(Vector2D(collider.rect.x, collider.rect.y), 0.0f, 1.0f);
@@ -44,6 +46,7 @@ Scene::Scene(const char *sceneName, const char *mapPath, int windowWidth, int wi
         e.addComponent<Sprite>(itemTex, colSrc, colDst);
     }
 
+    //create camera
     auto& cam = world.createEntity();
     SDL_FRect camView{};
     camView.w = windowWidth;
@@ -56,11 +59,11 @@ Scene::Scene(const char *sceneName, const char *mapPath, int windowWidth, int wi
     player.addComponent<Velocity>(Vector2D(0.0f, 0.0f), 120.0f);
 
     Animation anim = AssetManager::getAnimation("player_anim");
+    anim.animCallback = PlayerAnim::animCallback;
     player.addComponent<Animation>(anim);
 
     SDL_Texture* tex = TextureManager::load("../assets/animations/bird_anim.png");
 
-    // SDL_FRect playerSrc{0, 0, 32, 44};
     SDL_FRect playerSrc = anim.clips[anim.currentClip].frameIndices[0];
     SDL_FRect playerDst{playerTransform.position.x, playerTransform.position.y, 64, 64};
 
@@ -80,7 +83,8 @@ Scene::Scene(const char *sceneName, const char *mapPath, int windowWidth, int wi
         e.addComponent<Transform>(Vector2D(t.position.x, t.position.y), 0.0f, 1.0f);
         e.addComponent<Velocity>(Vector2D(0,-1), 100.0f);
 
-        auto& anim = AssetManager::getAnimation("enemy");
+        Animation anim = AssetManager::getAnimation("enemy");
+        anim.animCallback = ProjectileCallback::animCallback;
         e.addComponent<Animation>(anim);
 
         SDL_Texture* tex = TextureManager::load("../assets/animations/enemy_anim.png");
