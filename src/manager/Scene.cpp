@@ -7,6 +7,7 @@
 #include <iostream>
 
 #include "AssetManager.hpp"
+#include "Game.hpp"
 #include "AnimationCallbacks/CarAnim.hpp"
 #include "AnimationCallbacks/PlayerAnim.hpp"
 #include "AnimationCallbacks/ProjectileCallback.hpp"
@@ -76,6 +77,9 @@ Scene::Scene(const char *sceneName, const char *mapPath, int windowWidth, int wi
     playerCollider.rect.h = playerDst.h;
 
     player.addComponent<Sprite>(tex, playerSrc, playerDst);
+
+    player.addComponent<Health>(Game::gameState.playerHealth);
+
     player.addComponent<PlayerTag>();
 
     //create projectile

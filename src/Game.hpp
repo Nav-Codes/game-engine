@@ -13,6 +13,10 @@
 #include "World.hpp"
 #include "manager/SceneManager.hpp"
 
+struct GameState {
+    int playerHealth;
+};
+
 class Game {
   public:
     Game();
@@ -22,7 +26,7 @@ class Game {
 
     SceneManager sceneManager;
     static std::function<void(std::string)> onSceneChangeRequest;
-    // World world;
+    static GameState gameState;
 
     //these are the types SDL uses
     void init(const char* title, int width, int height, bool fullscreen);

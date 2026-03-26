@@ -40,6 +40,8 @@ void EventResponseSystem::onCollision(const CollisionEvent &e, const char *other
         other->destroy();
         //scene state
 
+        if (e.state != CollisionState::Enter) return;
+
         for (auto& entity : world.getEntities()) {
             if (!entity->hasComponent<SceneState>()) continue;
 
@@ -50,12 +52,26 @@ void EventResponseSystem::onCollision(const CollisionEvent &e, const char *other
             }
         }
     } else if (std::string(otherTag) == "wall") {
+
+        if (e.state != CollisionState::Stay) return;
+
         auto& t = player->getComponent<Transform>();
         t.position = t.oldPosition;
     } else if (std::string(otherTag) == "projectile") {
-        player->destroy();
-        //change scenes defer
-        Game::onSceneChangeRequest("gameover");
+        if (e.state != CollisionState::Enter) return;
+
+        auto& health = player->getComponent<Health>();
+        health.currentHealth--;
+        Game::gameState.playerHealth = health.currentHealth;
+
+        cout << "Health: " << health.currentHealth << endl;
+
+        if (health.currentHealth <= 0) {
+            player->destroy();
+            //change scenes defer
+            Game::onSceneChangeRequest("gameover");
+        }
+
     }
 }
 

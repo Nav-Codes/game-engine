@@ -11,6 +11,7 @@
 // #include "AssetManager.hpp"
 #include "manager/AssetManager.hpp"
 
+GameState Game::gameState{};
 std::random_device rd;
 std::mt19937 gen(rd());
 std::uniform_int_distribution<> dist(0, 255);
@@ -64,6 +65,9 @@ void Game::init(const char *title, int width, int height, bool fullscreen) {
     sceneManager.loadScene("level1", "../assets/map.tmx", width, height);
     sceneManager.loadScene("level2", "../assets/map2.tmx", width, height);
 
+    //init game data/state
+    gameState.playerHealth = 5;
+
     //start level 1
     sceneManager.changeSceneDeferred("level1");
 
@@ -109,13 +113,6 @@ void Game::render() {
 
     //every frame, renderer is cleared
     SDL_RenderClear(renderer);
-
-    //all your drawing would go here
-    // player->draw();
-    // world.render();
-
-    //displays everything that was just drawn
-    //draws it in mem first to back buffer
 
     sceneManager.render();
 
