@@ -43,7 +43,7 @@ void CollisionSystem::update(World &world) {
 
             if (Collision::AABB(colliderA, colliderB)) {
                 // std::cout << colliderA.tag << " hit: " << colliderB.tag << std::endl;
-                world.getEventManager().emit(CollisionEvent{entityA, entityB});
+                world.getEventManager().emit(CollisionEvent{entityA, entityB, CollisionState::Enter});
             }
         }
     }

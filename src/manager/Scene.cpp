@@ -58,25 +58,25 @@ Scene::Scene(const char *sceneName, const char *mapPath, int windowWidth, int wi
     cam.addComponent<Camera>(camView, world.getMap().width * 32, world.getMap().height * 32);
 
     //Player
-    // auto& player(world.createEntity());
-    // auto& playerTransform = player.addComponent<Transform>(Vector2D(0, 0), 0.0f, 1.0f);
-    // player.addComponent<Velocity>(Vector2D(0.0f, 0.0f), 120.0f);
-    //
-    // Animation anim = AssetManager::getAnimation("player_anim");
-    // anim.animCallback = PlayerAnim::animCallback;
-    // player.addComponent<Animation>(anim);
-    //
-    // SDL_Texture* tex = TextureManager::load("../assets/animations/bird_anim.png");
-    //
-    // SDL_FRect playerSrc = anim.clips[anim.currentClip].frameIndices[0];
-    // SDL_FRect playerDst{playerTransform.position.x, playerTransform.position.y, 64, 64};
-    //
-    // auto& playerCollider = player.addComponent<Collider>("player");
-    // playerCollider.rect.w = playerDst.w;
-    // playerCollider.rect.h = playerDst.h;
-    //
-    // player.addComponent<Sprite>(tex, playerSrc, playerDst);
-    // player.addComponent<PlayerTag>();
+    auto& player(world.createEntity());
+    auto& playerTransform = player.addComponent<Transform>(Vector2D(0, 0), 0.0f, 1.0f);
+    player.addComponent<Velocity>(Vector2D(0.0f, 0.0f), 120.0f);
+
+    Animation anim = AssetManager::getAnimation("player_anim");
+    anim.animCallback = PlayerAnim::animCallback;
+    player.addComponent<Animation>(anim);
+
+    SDL_Texture* tex = TextureManager::load("../assets/animations/bird_anim.png");
+
+    SDL_FRect playerSrc = anim.clips[anim.currentClip].frameIndices[0];
+    SDL_FRect playerDst{playerTransform.position.x, playerTransform.position.y, 64, 64};
+
+    auto& playerCollider = player.addComponent<Collider>("player");
+    playerCollider.rect.w = playerDst.w;
+    playerCollider.rect.h = playerDst.h;
+
+    player.addComponent<Sprite>(tex, playerSrc, playerDst);
+    player.addComponent<PlayerTag>();
 
     //create projectile
     auto& spawner(world.createEntity());
@@ -105,18 +105,18 @@ Scene::Scene(const char *sceneName, const char *mapPath, int windowWidth, int wi
     });
 
     //create car
-    auto& car(world.createEntity());
-    auto& carTransform = car.addComponent<Transform>(Vector2D(100, 100), 0.0f, 1.0f);
-    car.addComponent<Velocity>(Vector2D(0.0f, 0.0f), 0.0f, 240.0f);
-    car.addComponent<Acceleration>(50.0f, SOUTH, 4.0f);
-    Animation carAnim = AssetManager::getAnimation("car");
-    carAnim.animCallback = CarAnim::animCallback;
-    car.addComponent<Animation>(carAnim);
-    SDL_Texture* carTex = TextureManager::load("../assets/animations/car.png");
-    SDL_FRect carSrc = carAnim.clips[carAnim.currentClip].frameIndices[0];
-    SDL_FRect carDest {carTransform.position.x, carTransform.position.y, 100, 100};
-    car.addComponent<Sprite>(carTex, carSrc, carDest);
-    car.addComponent<CarTag>();
+    // auto& car(world.createEntity());
+    // auto& carTransform = car.addComponent<Transform>(Vector2D(100, 100), 0.0f, 1.0f);
+    // car.addComponent<Velocity>(Vector2D(0.0f, 0.0f), 0.0f, 240.0f);
+    // car.addComponent<Acceleration>(50.0f, SOUTH, 4.0f);
+    // Animation carAnim = AssetManager::getAnimation("car");
+    // carAnim.animCallback = CarAnim::animCallback;
+    // car.addComponent<Animation>(carAnim);
+    // SDL_Texture* carTex = TextureManager::load("../assets/animations/car.png");
+    // SDL_FRect carSrc = carAnim.clips[carAnim.currentClip].frameIndices[0];
+    // SDL_FRect carDest {carTransform.position.x, carTransform.position.y, 100, 100};
+    // car.addComponent<Sprite>(carTex, carSrc, carDest);
+    // car.addComponent<CarTag>();
 
     auto& state(world.createEntity());
     state.addComponent<SceneState>();

@@ -45,8 +45,7 @@ add_executable(game-engine src/main.cpp
         src/utils/Collision.cpp
         src/ecs/system/CollisionSystem.hpp
         src/ecs/system/CollisionSystem.cpp
-        src/ecs/EventManager.hpp
-        src/ecs/World.cpp
+        src/ecs/event/EventManager.hpp
         src/vendor/tinyxml2.h
         src/vendor/tinyxml2.cpp
         src/ecs/system/AnimationClip.hpp
@@ -64,6 +63,9 @@ add_executable(game-engine src/main.cpp
         src/ecs/system/AnimationCallbacks/CarAnim.hpp
         src/ecs/system/Direction.hpp
         src/ecs/system/PhysicsSystem.hpp
+        src/ecs/event/BaseEvent.hpp
+        src/ecs/system/EventResponseSystem.hpp
+        src/ecs/system/EventResponseSystem.cpp
 )
 
 target_link_libraries(game-engine

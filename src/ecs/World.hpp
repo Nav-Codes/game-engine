@@ -12,13 +12,15 @@
 #include "CollisionSystem.hpp"
 #include "DestructionSystem.hpp"
 #include "Entity.hpp"
-#include "EventManager.hpp"
+// #include "EventManager.hpp"
+#include "EventResponseSystem.hpp"
 #include "KeyboardInputSystem.hpp"
 #include "Map.hpp"
 #include "Movement.hpp"
 #include "RenderSystem.hpp"
 #include "SpawnTimerSystem.hpp"
 #include "PhysicsSystem.hpp"
+#include "event/EventManager.hpp"
 
 using namespace std;
 
@@ -37,9 +39,10 @@ class World {
     EventManager eventManager;
     SpawnTimerSystem spawnTimerSystem;
     DestructionSystem destructionSystem;
+    EventResponseSystem eventResponseSystem{*this};
 
 public:
-    World();
+    World() = default;
     void update(float dt, const SDL_Event& event) {
         keyboardInputSystem.update(entities, event);
         physicsSystem.update(entities, dt);
