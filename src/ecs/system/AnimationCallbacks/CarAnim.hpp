@@ -11,10 +11,6 @@ using namespace std;
 #include "Entity.hpp"
 #include "Component.hpp"
 
-//will need to keep track of
-//on D keypress or A keypress, stop current animation loop and create a
-//for idle animation, can just leave it as the last directional animation
-
 class CarAnim {
 public:
     static string animCallback(Entity& e) {
@@ -22,24 +18,12 @@ public:
             return nullptr;
         }
         auto& vel = e.getComponent<Velocity>();
-        auto& a = e.getComponent<Acceleration>();
+        auto& accel = e.getComponent<Acceleration>();
         auto& anim = e.getComponent<Animation>();
 
         string newClip;
 
-        if (a.direction == EAST) {
-            newClip = anim.oldClip = "drive_east";
-        }
-        else if (a.direction == WEST) {
-            newClip = anim.oldClip = "drive_west";
-        }
-        else if (a.direction == SOUTH) {
-            newClip = anim.oldClip = "drive_south";
-        }
-        else if (a.direction == NORTH) {
-            newClip = anim.oldClip = "drive_north";
-        }
-        else if (a.direction == STOP) {
+        if (vel.speed == 0.0f) {
             if (anim.oldClip == "drive_east") {
                 newClip = "stop_facing_east";
             }
@@ -52,6 +36,18 @@ public:
             else if (anim.oldClip == "drive_south") {
                 newClip = "stop_facing_south";
             }
+        }
+        else if (accel.direction == EAST) {
+            newClip = anim.oldClip = "drive_east";
+        }
+        else if (accel.direction == WEST) {
+            newClip = anim.oldClip = "drive_west";
+        }
+        else if (accel.direction == SOUTH) {
+            newClip = anim.oldClip = "drive_south";
+        }
+        else if (accel.direction == NORTH) {
+            newClip = anim.oldClip = "drive_north";
         }
         return newClip;
     }
