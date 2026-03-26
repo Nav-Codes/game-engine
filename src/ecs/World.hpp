@@ -15,12 +15,14 @@
 // #include "EventManager.hpp"
 #include "EventResponseSystem.hpp"
 #include "KeyboardInputSystem.hpp"
+#include "MainMenuSystem.hpp"
 #include "Map.hpp"
 #include "Movement.hpp"
 #include "RenderSystem.hpp"
 #include "SpawnTimerSystem.hpp"
 #include "PhysicsSystem.hpp"
 #include "event/EventManager.hpp"
+#include "scene/SceneType.hpp"
 
 using namespace std;
 
@@ -40,18 +42,26 @@ class World {
     SpawnTimerSystem spawnTimerSystem;
     DestructionSystem destructionSystem;
     EventResponseSystem eventResponseSystem{*this};
+    MainMenuSystem mainMenuSystem;
 
 public:
     World() = default;
-    void update(float dt, const SDL_Event& event) {
-        keyboardInputSystem.update(entities, event);
-        physicsSystem.update(entities, dt);
-        movementSystem.update(entities, dt);
-        collisionSystem.update(*this);
-        animationSystem.update(entities, dt);
-        cameraSystem.update(entities);
-        spawnTimerSystem.update(entities, dt);
-        destructionSystem.update(entities);
+    void update(float dt, const SDL_Event& event, SceneType sceneType) {
+
+        if (sceneType == SceneType::MainMenu) {
+            mainMenuSystem.update(event);
+        }
+        else {
+            keyboardInputSystem.update(entities, event);
+            physicsSystem.update(entities, dt);
+            movementSystem.update(entities, dt);
+            collisionSystem.update(*this);
+            animationSystem.update(entities, dt);
+            cameraSystem.update(entities);
+            spawnTimerSystem.update(entities, dt);
+            destructionSystem.update(entities);
+        }
+
         synchronizeEntities();
         cleanup();
     }

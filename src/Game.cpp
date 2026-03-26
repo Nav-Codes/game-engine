@@ -62,14 +62,15 @@ void Game::init(const char *title, int width, int height, bool fullscreen) {
     AssetManager::loadAnimation("car", "../assets/animations/car.xml");
 
     //load scenes
-    sceneManager.loadScene("level1", "../assets/map.tmx", width, height);
-    sceneManager.loadScene("level2", "../assets/map2.tmx", width, height);
+    sceneManager.loadScene(SceneType::MainMenu, "mainmenu", nullptr, width, height);
+    sceneManager.loadScene(SceneType::Gameplay, "level1", "../assets/map.tmx", width, height);
+    sceneManager.loadScene(SceneType::Gameplay, "level2", "../assets/map2.tmx", width, height);
 
     //init game data/state
     gameState.playerHealth = 5;
 
     //start level 1
-    sceneManager.changeSceneDeferred("level1");
+    sceneManager.changeSceneDeferred("mainmenu");
 
     //resolve scene callback
     onSceneChangeRequest = [this](string sceneName) {

@@ -55,8 +55,8 @@ add_executable(game-engine src/main.cpp
         src/ecs/system/CameraSystem.hpp
         src/ecs/system/SpawnTimerSystem.hpp
         src/ecs/system/DestructionSystem.hpp
-        src/manager/Scene.hpp
-        src/manager/Scene.cpp
+        src/scene/Scene.hpp
+        src/scene/Scene.cpp
         src/manager/SceneManager.hpp
         src/ecs/system/AnimationCallbacks/PlayerAnim.hpp
         src/ecs/system/AnimationCallbacks/ProjectileCallback.hpp
@@ -66,6 +66,9 @@ add_executable(game-engine src/main.cpp
         src/ecs/event/BaseEvent.hpp
         src/ecs/system/EventResponseSystem.hpp
         src/ecs/system/EventResponseSystem.cpp
+        src/scene/SceneType.hpp
+        src/ecs/system/MainMenuSystem.hpp
+        src/ecs/system/MainMenuSystem.cpp
 )
 
 target_link_libraries(game-engine

@@ -9,11 +9,12 @@
 #include <string>
 #include <unordered_map>
 
-#include "Scene.hpp"
+#include "scene/Scene.hpp"
 
 using namespace std;
 
 struct SceneParams {
+    SceneType sceneType;
     const char* name;
     const char* mapPath;
     int windowWidth;
@@ -31,6 +32,7 @@ class SceneManager {
             //create scene object
             //build scene
             currentScene = make_unique<Scene>(
+                params.sceneType,
                 params.name,
                 params.mapPath,
                 params.windowWidth,
@@ -42,8 +44,8 @@ class SceneManager {
 
 public:
     unique_ptr<Scene> currentScene;
-    void loadScene(const char *sceneName, const char *mapPath, int windowWidth, int windowHeight) {
-        sceneParam[sceneName] = {sceneName, mapPath, windowWidth, windowHeight};
+    void loadScene(SceneType sceneType, const char *sceneName, const char *mapPath, int windowWidth, int windowHeight) {
+        sceneParam[sceneName] = {sceneType, sceneName, mapPath, windowWidth, windowHeight};
     }
 
     void changeSceneDeferred(const string& name) {
