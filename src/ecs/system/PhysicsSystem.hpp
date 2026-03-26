@@ -42,10 +42,6 @@ public:
                     default : break;
                 }
 
-                // i think at least one of the x and y values has to be 1 or -1.
-                //if both are 0, then nothing will ever happen
-                //if you want something to stop moving, make the speed 0, not the x or y values
-
                 //decelerating
                 if (!a.isAccelerating) {
                     if (v.speed < ZERO_EPSILON && v.speed > -ZERO_EPSILON) { //if speed is 0
@@ -53,17 +49,13 @@ public:
                         // a.direction = STOP;
                     }
                     else {
-                        float accelFactor = a.isBraking ? a.accelerationFactor*2 : a.accelerationFactor;
+                        float accelFactor = a.isBraking ? a.accelerationFactor * a.brakeForce : a.accelerationFactor;
                         accelFactor = v.speed < 0.0f ? -accelFactor : accelFactor;
                         v.speed -= accelFactor * dt;
                     }
                 }
                 //accelerating
                 else if (a.isAccelerating) {
-                    // if (v.speed < 0.4f && v.speed > -0.4f) {
-                    //     v.speed = 0.5f; //may need to set this in keyboard system as well
-                    // }
-
                     //change to account for +ve speeds
                     v.speed += (v.speed <0.0f ? -a.accelerationFactor : a.accelerationFactor) * dt;
 
@@ -73,9 +65,7 @@ public:
                     if (v.speed <= -v.maxSpeed) {
                         v.speed = -v.maxSpeed;
                     }
-                    // cout << "HERE" << endl;
                 }
-                // cout << "SPEED: " << v.speed << endl;
             }
         }
     }

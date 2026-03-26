@@ -27,16 +27,15 @@ struct Transform {
 struct Velocity {
     Vector2D direction{};
     float speed{};
-    // float accelerationFactor{}; // use this if its >= 0
     float maxSpeed{};
-    // Direction facingDirection{};
 };
 
 struct Acceleration {
-    float accelerationFactor{}; // use this if its >= 0
+    float accelerationFactor = 1.0f;
     //controls which direction the object is facing
     //allows object to move south while facing north as if it is reversing
     Direction direction{};
+    float brakeForce = 1.0f;
     bool isAccelerating{};
     bool isBraking{};
 };

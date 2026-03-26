@@ -108,7 +108,7 @@ Scene::Scene(const char *sceneName, const char *mapPath, int windowWidth, int wi
     auto& car(world.createEntity());
     auto& carTransform = car.addComponent<Transform>(Vector2D(100, 100), 0.0f, 1.0f);
     car.addComponent<Velocity>(Vector2D(0.0f, 0.0f), 0.0f, 240.0f);
-    car.addComponent<Acceleration>(20.0f, SOUTH);
+    car.addComponent<Acceleration>(50.0f, SOUTH, 4.0f);
     Animation carAnim = AssetManager::getAnimation("car");
     carAnim.animCallback = CarAnim::animCallback;
     car.addComponent<Animation>(carAnim);
