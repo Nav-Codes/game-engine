@@ -10,6 +10,7 @@
 #include <unordered_map>
 
 #include "AnimationClip.hpp"
+#include "Direction.hpp"
 #include "Entity.hpp"
 #include "utils/Vector2D.hpp"
 
@@ -26,6 +27,18 @@ struct Transform {
 struct Velocity {
     Vector2D direction{};
     float speed{};
+    // float accelerationFactor{}; // use this if its >= 0
+    float maxSpeed{};
+    // Direction facingDirection{};
+};
+
+struct Acceleration {
+    float accelerationFactor{}; // use this if its >= 0
+    //controls which direction the object is facing
+    //allows object to move south while facing north as if it is reversing
+    Direction direction{};
+    bool isAccelerating{};
+    bool isBraking{};
 };
 
 struct Sprite {
@@ -69,5 +82,7 @@ struct SceneState {
 struct PlayerTag{};
 
 struct ProjectileTag{};
+
+struct CarTag{};
 
 #endif //COMPONENT_HPP

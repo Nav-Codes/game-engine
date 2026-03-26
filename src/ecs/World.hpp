@@ -18,6 +18,7 @@
 #include "Movement.hpp"
 #include "RenderSystem.hpp"
 #include "SpawnTimerSystem.hpp"
+#include "PhysicsSystem.hpp"
 
 using namespace std;
 
@@ -26,6 +27,7 @@ class World {
     std::vector<std::unique_ptr<Entity>> entities;
     std::vector<std::unique_ptr<Entity>> deferredEntities;
 
+    PhysicsSystem physicsSystem;
     MovementSystem movementSystem;
     RenderSystem renderSystem;
     KeyboardInputSystem keyboardInputSystem;
@@ -40,6 +42,7 @@ public:
     World();
     void update(float dt, const SDL_Event& event) {
         keyboardInputSystem.update(entities, event);
+        physicsSystem.update(entities, dt);
         movementSystem.update(entities, dt);
         collisionSystem.update(*this);
         animationSystem.update(entities, dt);
