@@ -18,7 +18,7 @@ void CollisionSystem::update(World &world) {
     const std::vector<Entity*> collidables = queryCollidables(world.getEntities());
 
     //update all collider positions first
-    for (auto entity : collidables) {
+    for (auto& entity : collidables) {
         auto& t = entity->getComponent<Transform>();
         auto& c = entity->getComponent<Collider>();
         c.rect.x = t.position.x;

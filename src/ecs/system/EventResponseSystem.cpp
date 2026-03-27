@@ -37,7 +37,7 @@ void EventResponseSystem::onCollision(const CollisionEvent &e, const char *other
     if (!getCollisionEntities(e, otherTag, player, other)) return;
 
     if (std::string(otherTag) == "item") {
-        other->destroy();
+
         //scene state
 
         if (e.state != CollisionState::Enter) return;
@@ -51,6 +51,7 @@ void EventResponseSystem::onCollision(const CollisionEvent &e, const char *other
                 Game::onSceneChangeRequest("level2");
             }
         }
+        other->destroy();
     } else if (std::string(otherTag) == "wall") {
 
         if (e.state != CollisionState::Stay) return;
