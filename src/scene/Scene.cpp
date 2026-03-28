@@ -45,7 +45,7 @@ Scene::Scene(SceneType sceneType, const char *sceneName, const char *mapPath, in
         c.rect.h = collider.rect.h;
 
         SDL_Texture* tex = TextureManager::load("../assets/spritesheet.png");
-        SDL_FRect colSrc {0, 32, 32, 32};
+        SDL_FRect colSrc {2, 36, 32, 32};
         SDL_FRect colDst {c.rect.x, c.rect.y, c.rect.w, c.rect.h};
 
         e.addComponent<Sprite>(tex, colSrc, colDst);
