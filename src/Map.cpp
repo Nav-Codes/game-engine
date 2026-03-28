@@ -107,20 +107,20 @@ void Map::draw(const Camera& cam) {
 
             switch (type) {
                 case 1: //dirt
-                    src.x = 0;
-                    src.y = 0;
+                    src.x = 1;
+                    src.y = 1;
                     src.h = 32;
                     src.w = 32;
                     break;
                 case 2: //grass
-                    src.x = 32;
-                    src.y = 0;
+                    src.x = 35;
+                    src.y = 1;
                     src.h = 32;
                     src.w = 32;
                     break;
                 case 4: //water
-                    src.x = 32;
-                    src.y = 32;
+                    src.x = 35;
+                    src.y = 35;
                     src.h = 32;
                     src.w = 32;
                     break;
