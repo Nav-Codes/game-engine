@@ -47,7 +47,6 @@ public:
                 if (!a.isAccelerating) {
                     if (v.speed < ZERO_EPSILON && v.speed > -ZERO_EPSILON) { //if speed is 0
                         v.speed = 0.0f;
-                        // a.direction = STOP;
                     }
                     else {
                         float accelFactor = b.isBraking ? a.accelerationFactor * b.brakeForce : a.accelerationFactor;

@@ -23,35 +23,41 @@ public:
 
         string newClip;
 
-        if (velocity.direction.x > 0.0f) {
-            newClip = anim.oldClip = "fly_right";
+        if (velocity.direction.x != 0.0f || velocity.direction.y != 0.0f) {
+            newClip = "walk";
+        } else {
+            newClip = "idle";
         }
-        else if (velocity.direction.x < 0.0f) {
-            newClip = anim.oldClip = "fly_left";
-        }
-        else if (velocity.direction.y > 0.0f) {
-            newClip = anim.oldClip = "fly_down";
-        }
-        else if (velocity.direction.y < 0.0f) {
-            newClip = anim.oldClip = "fly_up";
-        }
-        else {
-            if (anim.oldClip == "fly_right") {
-                newClip = "idle_right";
-            }
-            else if (anim.oldClip == "fly_left") {
-                newClip = "idle_left";
-            }
-            else if (anim.oldClip == "fly_up") {
-                newClip = "idle_up";
-            }
-            else if (anim.oldClip == "fly_down") {
-                newClip = "idle_down";
-            }
-            else {
-                newClip = "idle_right";
-            }
-        }
+
+        // if (velocity.direction.x > 0.0f) {
+        //     newClip = anim.oldClip = "fly_right";
+        // }
+        // else if (velocity.direction.x < 0.0f) {
+        //     newClip = anim.oldClip = "fly_left";
+        // }
+        // else if (velocity.direction.y > 0.0f) {
+        //     newClip = anim.oldClip = "fly_down";
+        // }
+        // else if (velocity.direction.y < 0.0f) {
+        //     newClip = anim.oldClip = "fly_up";
+        // }
+        // else {
+        //     if (anim.oldClip == "fly_right") {
+        //         newClip = "idle_right";
+        //     }
+        //     else if (anim.oldClip == "fly_left") {
+        //         newClip = "idle_left";
+        //     }
+        //     else if (anim.oldClip == "fly_up") {
+        //         newClip = "idle_up";
+        //     }
+        //     else if (anim.oldClip == "fly_down") {
+        //         newClip = "idle_down";
+        //     }
+        //     else {
+        //         newClip = "idle_right";
+        //     }
+        // }
         return newClip;
     }
 };
