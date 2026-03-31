@@ -35,8 +35,11 @@ struct Acceleration {
     //controls which direction the object is facing
     //allows object to move south while facing north as if it is reversing
     Direction direction{};
-    float brakeForce = 1.0f;
     bool isAccelerating{};
+};
+
+struct Brake {
+    float brakeForce = 1.0f;
     bool isBraking{};
 };
 

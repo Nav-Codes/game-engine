@@ -16,10 +16,11 @@ class PhysicsSystem {
 public:
     void update(const vector<unique_ptr<Entity>>& entities, float dt) {
         for (auto& e : entities) {
-            if (e->hasComponent<Velocity>() && e->hasComponent<Acceleration>()) {
+            if (e->hasComponent<Velocity>() && e->hasComponent<Acceleration>() && e->hasComponent<Brake>()) {
                 //this essentially determines which way we move and how quickly we speed up
                 auto& v = e->getComponent<Velocity>();
                 auto& a = e->getComponent<Acceleration>();
+                auto& b = e->getComponent<Brake>();
 
                 //Ensure that the object is facing in the correct direction
                 switch (a.direction) {
@@ -49,7 +50,7 @@ public:
                         // a.direction = STOP;
                     }
                     else {
-                        float accelFactor = a.isBraking ? a.accelerationFactor * a.brakeForce : a.accelerationFactor;
+                        float accelFactor = b.isBraking ? a.accelerationFactor * b.brakeForce : a.accelerationFactor;
                         accelFactor = v.speed < 0.0f ? -accelFactor : accelFactor;
                         v.speed -= accelFactor * dt;
                     }
