@@ -46,7 +46,11 @@ public:
                     sprite.src = anim.clips[anim.currentClip].frameIndices[anim.currentFrame];
                 }
 
-                TextureManager::draw(sprite.texture, sprite.src, sprite.dst);
+                if (t.rotation != 0) {
+                    TextureManager::draw(sprite.texture, sprite.src, sprite.dst, t.rotation, sprite.center);
+                } else {
+                    TextureManager::draw(sprite.texture, sprite.src, sprite.dst);
+                }
             }
         }
     }

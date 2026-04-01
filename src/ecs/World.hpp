@@ -12,7 +12,6 @@
 #include "CollisionSystem.hpp"
 #include "DestructionSystem.hpp"
 #include "Entity.hpp"
-// #include "EventManager.hpp"
 #include "EventResponseSystem.hpp"
 #include "KeyboardInputSystem.hpp"
 #include "MainMenuSystem.hpp"
@@ -22,6 +21,7 @@
 #include "RenderSystem.hpp"
 #include "SpawnTimerSystem.hpp"
 #include "PhysicsSystem.hpp"
+#include "PlayerRotationSystem.hpp"
 #include "UIRenderSystem.hpp"
 #include "event/EventManager.hpp"
 #include "scene/SceneType.hpp"
@@ -47,6 +47,7 @@ class World {
     MainMenuSystem mainMenuSystem;
     UIRenderSystem uiRenderSystem;
     MouseInputSystem mouseInputSystem;
+    PlayerRotationSystem playerRotationSystem;
 
 public:
     World() = default;
@@ -64,6 +65,7 @@ public:
             cameraSystem.update(entities);
             spawnTimerSystem.update(entities, dt);
             destructionSystem.update(entities);
+            playerRotationSystem.update(entities);
         }
 
         mouseInputSystem.update(*this, event);

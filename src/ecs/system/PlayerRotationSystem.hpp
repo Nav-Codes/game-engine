@@ -4,10 +4,13 @@
 
 #ifndef PLAYERROTATIONSYSTEM_HPP
 #define PLAYERROTATIONSYSTEM_HPP
+#include <cmath>
+#include <iostream>
 #include <memory>
 #include <vector>
 #include <SDL3/SDL_mouse.h>
 
+#include "Component.hpp"
 #include "Entity.hpp"
 
 using namespace std;
@@ -15,17 +18,29 @@ using namespace std;
 class PlayerRotationSystem {
 public:
     void update(vector<unique_ptr<Entity>>& entities) {
-        float mouseX, mouseY;
-        SDL_GetMouseState(&mouseX, &mouseY);
-
         for (auto& e : entities) {
-            // if () {
-            //
-            // }
-            //will use the mouseX and mouseY to create rise/run calculations
-            //and plug that into the x and y of the players velocity, since they are floats
-            //will not be PlayerMovementSystem because generic MovementSystem covers that for us already
+            if (e->hasComponent<PlayerTag>() && e->hasComponent<Velocity>() && e->hasComponent<Transform>() && e->hasComponent<Sprite>()) {
+                auto& v = e->getComponent<Velocity>();
+                auto& t = e->getComponent<Transform>();
+                auto& s = e->getComponent<Sprite>();
 
+                float mouseX, mouseY;
+                SDL_GetMouseState(&mouseX, &mouseY);
+
+                float playerX = t.position.x + s.dst.w / 2.0f;
+                float playerY = t.position.y + s.dst.h / 2.0f;
+
+                float deltaX = mouseX - playerX;
+                float deltaY = mouseY - playerY;
+
+                float angleRadians = atan2(deltaY, deltaX);
+                float angleDegrees = angleRadians * 180.0f / M_PI;
+
+                t.rotation = angleDegrees;
+
+                SDL_FPoint center = { s.dst.w / 2.0f, s.dst.h / 2.0f };
+                s.center = center;
+            }
         }
     }
 };

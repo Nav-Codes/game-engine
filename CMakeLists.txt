@@ -74,6 +74,7 @@ add_executable(game-engine src/main.cpp
         src/ecs/system/MouseInputSystem.hpp
         src/ecs/system/MouseInputSystem.cpp
         src/ecs/system/PlayerRotationSystem.hpp
+        src/ecs/system/TargetingSystem.hpp
 )
 
 target_link_libraries(game-engine

@@ -47,8 +47,8 @@
     </walk>
 
     <shoot>
-        <frame x="1560" y="0" w="312" h="206"/>
         <frame x="1560" y="206" w="312" h="206"/>
+        <frame x="1560" y="0" w="312" h="206"/>
         <frame x="1560" y="412" w="312" h="206"/>
     </shoot>
 </animations>

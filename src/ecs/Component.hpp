@@ -51,7 +51,22 @@ enum class PlayerState {
 
 struct PlayerActionState {
     PlayerState playerState{};
+    //ensures player is idle only when player is not holding down any of these keys
     bool W{}, A{}, S{}, D{};
+};
+
+//ideally we have component that allows rotation system to act on entities
+struct RotatorCuff {
+
+};
+
+struct Targeting {
+    //could have rise/run thingy here and have player rotation system access this
+    //rise and run can be calculated in another targeting system
+    Entity& start;
+    Entity& target;
+    float rise;
+    float run;
 };
 
 enum class RenderLayer {
@@ -60,11 +75,12 @@ enum class RenderLayer {
 };
 
 struct Sprite {
-    SDL_Texture* texture  = nullptr;
+    SDL_Texture* texture = nullptr;
     SDL_FRect src{};
     SDL_FRect dst{};
     RenderLayer renderLayer = RenderLayer::World;
     bool visible = true;
+    SDL_FPoint center{};
 };
 
 struct Collider {

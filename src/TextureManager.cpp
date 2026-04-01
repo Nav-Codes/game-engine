@@ -53,6 +53,10 @@ void TextureManager::draw(SDL_Texture *texture, SDL_FRect src, SDL_FRect dst) {
     SDL_RenderTexture(game->renderer, texture, &src, &dst);
 }
 
+void TextureManager::draw(SDL_Texture *texture, SDL_FRect src, SDL_FRect dst, float rotation, SDL_FPoint center) {
+    SDL_RenderTextureRotated(game->renderer, texture, &src, &dst, rotation, &center, SDL_FLIP_NONE);
+}
+
 void TextureManager::clean() {
     for (auto& tex : textures) {
         SDL_DestroyTexture(tex.second);
