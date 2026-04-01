@@ -69,6 +69,10 @@ add_executable(game-engine src/main.cpp
         src/scene/SceneType.hpp
         src/ecs/system/MainMenuSystem.hpp
         src/ecs/system/MainMenuSystem.cpp
+        src/utils/RenderUtils.hpp
+        src/ecs/system/UIRenderSystem.hpp
+        src/ecs/system/MouseInputSystem.hpp
+        src/ecs/system/MouseInputSystem.cpp
 )
 
 target_link_libraries(game-engine

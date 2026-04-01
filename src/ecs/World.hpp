@@ -17,10 +17,12 @@
 #include "KeyboardInputSystem.hpp"
 #include "MainMenuSystem.hpp"
 #include "Map.hpp"
+#include "MouseInputSystem.hpp"
 #include "Movement.hpp"
 #include "RenderSystem.hpp"
 #include "SpawnTimerSystem.hpp"
 #include "PhysicsSystem.hpp"
+#include "UIRenderSystem.hpp"
 #include "event/EventManager.hpp"
 #include "scene/SceneType.hpp"
 
@@ -43,6 +45,8 @@ class World {
     DestructionSystem destructionSystem;
     EventResponseSystem eventResponseSystem{*this};
     MainMenuSystem mainMenuSystem;
+    UIRenderSystem uiRenderSystem;
+    MouseInputSystem mouseInputSystem;
 
 public:
     World() = default;
@@ -62,6 +66,8 @@ public:
             destructionSystem.update(entities);
         }
 
+        mouseInputSystem.update(*this, event);
+
         synchronizeEntities();
         cleanup();
     }
@@ -75,6 +81,7 @@ public:
         }
 
         renderSystem.render(entities);
+        uiRenderSystem.render(entities);
     }
 
     Entity& createEntity() {

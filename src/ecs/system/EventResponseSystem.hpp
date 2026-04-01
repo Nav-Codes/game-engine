@@ -22,6 +22,8 @@ private:
 
     //player action
     void onPlayerAction(const PlayerActionEvent& e, const std::function<void(Entity* player, PlayerAction action)>& callback);
+
+    void onMouseInteraction(const MouseInteractionEvent& e);
 };
 
 #endif //EVENTRESPONSESYSTEM_HPP

@@ -43,15 +43,23 @@ struct Brake {
     bool isBraking{};
 };
 
+enum class RenderLayer {
+    World,
+    UI
+};
+
 struct Sprite {
     SDL_Texture* texture  = nullptr;
     SDL_FRect src{};
     SDL_FRect dst{};
+    RenderLayer renderLayer = RenderLayer::World;
+    bool visible = true;
 };
 
 struct Collider {
     string tag;
     SDL_FRect rect{}; //position and size of collider
+    bool enabled = true;
 };
 
 struct Animation {
@@ -83,6 +91,21 @@ struct SceneState {
 
 struct Health {
     int currentHealth{};
+};
+
+struct Clickable {
+    std::function<void()> onPressed{};
+    std::function<void()> onReleased{};
+    std::function<void()> onCancel{};
+    bool pressed = true;
+};
+
+struct Parent {
+    Entity* parent = nullptr;
+};
+
+struct Children {
+    std::vector<Entity*> children{};
 };
 
 struct PlayerTag{};
