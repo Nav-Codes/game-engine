@@ -43,6 +43,17 @@ struct Brake {
     bool isBraking{};
 };
 
+enum class PlayerState {
+    Idle,
+    Walking,
+    Shooting
+};
+
+struct PlayerActionState {
+    PlayerState playerState{};
+    bool W{}, A{}, S{}, D{};
+};
+
 enum class RenderLayer {
     World,
     UI

@@ -91,6 +91,8 @@ void Scene::initGameplay(const char *mapPath, int windowWidth, int windowHeight)
 
     player.addComponent<Health>(Game::gameState.playerHealth);
 
+    player.addComponent<PlayerActionState>();
+
     player.addComponent<PlayerTag>();
 
     //create projectile

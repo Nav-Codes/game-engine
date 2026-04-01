@@ -9,7 +9,6 @@
 #include <SDL3/SDL_events.h>
 
 #include "Component.hpp"
-#include "Entity.hpp"
 
 class KeyboardInputSystem {
 public:
@@ -17,35 +16,70 @@ public:
     //changes direction of entity
     void update(const std::vector<std::unique_ptr<Entity>>& entities, const SDL_Event& event) {
         for (auto& e : entities) {
-            if (e->hasComponent<PlayerTag>() && e->hasComponent<Velocity>()) {
+            if (e->hasComponent<PlayerTag>() && e->hasComponent<Velocity>() && e->hasComponent<PlayerActionState>()) {
                 auto& v = e->getComponent<Velocity>();
+                auto& ps = e->getComponent<PlayerActionState>();
                 if (event.type == SDL_EVENT_KEY_DOWN) {
                     switch(event.key.key) {
                         case SDLK_W :
-                            v.direction.y = -1; break;
+                            v.direction.y = -1;
+                            ps.W = true;
+                            break;
                         case SDLK_S :
-                            v.direction.y = 1; break;
+                            v.direction.y = 1;
+                            ps.S = true;
+                            break;
                         case SDLK_A :
-                            v.direction.x = -1; break;
+                            v.direction.x = -1;
+                            ps.A = true;
+                            break;
                         case SDLK_D :
-                            v.direction.x = 1; break;
+                            v.direction.x = 1;
+                            ps.D = true;
+                            break;
                         default : break;
                     }
-                }
-                    if (event.type == SDL_EVENT_KEY_UP) {
-                        switch(event.key.key) {
-                            case SDLK_W :
-                                v.direction.y = 0; break;
-                            case SDLK_S :
-                                v.direction.y = 0; break;
-                            case SDLK_A :
-                                v.direction.x = 0; break;
-                            case SDLK_D :
-                                v.direction.x = 0; break;
-                            default : break;
-                        }
+                    auto key = event.key.key;
+                    if ((ps.W || ps.A || ps.S || ps.D) && ps.playerState != PlayerState::Shooting) {
+                        ps.playerState = PlayerState::Walking;
+                    }
+                    if (key == SDLK_F) {
+                        ps.playerState = PlayerState::Shooting;
                     }
                 }
+                if (event.type == SDL_EVENT_KEY_UP) {
+                    switch(event.key.key) {
+                        case SDLK_W :
+                            v.direction.y = 0;
+                            ps.W = false;
+                            break;
+                        case SDLK_S :
+                            v.direction.y = 0;
+                            ps.S = false;
+                            break;
+                        case SDLK_A :
+                            v.direction.x = 0;
+                            ps.A = false;
+                            break;
+                        case SDLK_D :
+                            v.direction.x = 0;
+                            ps.D = false;
+                            break;
+                        default : break;
+                    }
+                    auto key = event.key.key;
+                    if (key == SDLK_F) {
+                        if (!ps.W && !ps.A && !ps.S && !ps.D) {
+                            ps.playerState = PlayerState::Idle;
+                        } else {
+                            ps.playerState = PlayerState::Walking;
+                        }
+                    }
+                    else if (!ps.W && !ps.A && !ps.S && !ps.D && ps.playerState != PlayerState::Shooting) {
+                        ps.playerState = PlayerState::Idle;
+                    }
+                }
+            }
 
             //Car movement controls
             else if (e->hasComponent<CarTag>() && e->hasComponent<Velocity>() && e->hasComponent<Acceleration>() && e->hasComponent<Brake>()) {
