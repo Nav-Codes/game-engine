@@ -73,26 +73,19 @@ void Scene::initGameplay(const char *mapPath, int windowWidth, int windowHeight)
     auto& player(world.createEntity());
     auto& playerTransform = player.addComponent<Transform>(Vector2D(0, 0), 0.0f, 1.0f);
     player.addComponent<Velocity>(Vector2D(0.0f, 0.0f), 120.0f);
-
     Animation anim = AssetManager::getAnimation("player");
     anim.animCallback = PlayerAnim::animCallback;
     player.addComponent<Animation>(anim);
-
     SDL_Texture* tex = TextureManager::load("../assets/animations/player.png");
-
     SDL_FRect playerSrc = anim.clips[anim.currentClip].frameIndices[0];
     SDL_FRect playerDst{playerTransform.position.x, playerTransform.position.y, 156, 103};
-
     auto& playerCollider = player.addComponent<Collider>("player");
     playerCollider.rect.w = playerDst.w;
     playerCollider.rect.h = playerDst.h;
-
     player.addComponent<Sprite>(tex, playerSrc, playerDst);
-
     player.addComponent<Health>(Game::gameState.playerHealth);
-
     player.addComponent<PlayerActionState>();
-
+    player.addComponent<Rotator>();
     player.addComponent<PlayerTag>();
 
     //create projectile

@@ -73,7 +73,7 @@ add_executable(game-engine src/main.cpp
         src/ecs/system/UIRenderSystem.hpp
         src/ecs/system/MouseInputSystem.hpp
         src/ecs/system/MouseInputSystem.cpp
-        src/ecs/system/PlayerRotationSystem.hpp
+        src/ecs/system/RotationSystem.hpp
         src/ecs/system/TargetingSystem.hpp
 )
 

@@ -55,9 +55,8 @@ struct PlayerActionState {
     bool W{}, A{}, S{}, D{};
 };
 
-//ideally we have component that allows rotation system to act on entities
-struct RotatorCuff {
-
+struct Rotator {
+    Transform* target = nullptr;
 };
 
 struct Targeting {
