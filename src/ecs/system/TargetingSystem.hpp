@@ -12,22 +12,31 @@
 
 using namespace std;
 
-
-//this will essentially loop thru all the entities with the Targeting component
-//it will calculate the rise/run stuff and store it in the component
-//purpose of this is to do the targeting system calculations, so that
-//turrets and guns can just use that to define x and y velocities for their projectiles
 class TargetingSystem {
 public:
     void update(vector<unique_ptr<Entity>>& entities) {
         for (auto& e : entities) {
-            if (e->hasComponent<Targeting>()) {
-                //calculate the targeting thing for it
-                //get the start transform and the target transform
-                //calculate the rise/run from start to target
-                //rise = y2-y1, y2=target, y1=start; same thing for x2 and x1
-                //ensure that rise/run values are less than 1 if entity is not moving up, down, left, or right
-                //store that in the Targeting component
+            if (e->hasComponent<Transform>() && e->hasComponent<Target>()) {
+                auto& transform = e->getComponent<Transform>();
+                auto& target = e->getComponent<Target>();
+
+                //this might be affecting how the bullets are being rotated
+                float targetX, targetY;
+                if (target.target == nullptr) {
+                    SDL_GetMouseState(&targetX, &targetY);
+                } else {
+                    targetX = target.target->position.x + target.targetCenter.x;
+                    targetY = target.target->position.y + target.targetCenter.y;
+                }
+
+                float startingX = transform.position.x + target.startingCenter.x;
+                float startingY = transform.position.y + target.startingCenter.y;
+
+                float deltaX = targetX - startingX;
+                float deltaY = targetY - startingY;
+
+                target.deltaX = deltaX;
+                target.deltaY = deltaY;
             }
         }
     }

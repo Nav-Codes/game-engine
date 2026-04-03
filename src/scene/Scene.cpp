@@ -9,7 +9,6 @@
 #include "Game.hpp"
 #include "AnimationCallbacks/CarAnim.hpp"
 #include "AnimationCallbacks/PlayerAnim.hpp"
-#include "AnimationCallbacks/ProjectileCallback.hpp"
 #include "manager/AssetManager.hpp"
 
 Scene::Scene(SceneType sceneType, const char *sceneName, const char *mapPath, int windowWidth, int windowHeight)
@@ -85,33 +84,30 @@ void Scene::initGameplay(const char *mapPath, int windowWidth, int windowHeight)
     player.addComponent<Sprite>(tex, playerSrc, playerDst);
     player.addComponent<Health>(Game::gameState.playerHealth);
     player.addComponent<PlayerActionState>();
-    player.addComponent<Rotator>();
+    SDL_FPoint playerCenter {playerDst.w/2.0f, playerDst.h/2.0f};
+    player.addComponent<Target>(nullptr, SDL_FPoint(), playerCenter);
     player.addComponent<PlayerTag>();
 
-    //create projectile
-    auto& spawner(world.createEntity());
-    Transform t = spawner.addComponent<Transform>(Vector2D(windowWidth/2, windowHeight-5), 0.0f, 1.0f);
-    spawner.addComponent<TimedSpawner>(2.0f, [this, t] {
-        //create our projectile
-        auto& e(world.createDeferredEntity());
-        e.addComponent<Transform>(Vector2D(t.position.x, t.position.y), 0.0f, 1.0f);
-        e.addComponent<Velocity>(Vector2D(0,-1), 100.0f);
-
-        Animation anim = AssetManager::getAnimation("enemy");
-        anim.animCallback = ProjectileCallback::animCallback;
-        e.addComponent<Animation>(anim);
-
-        SDL_Texture* tex = TextureManager::load("../assets/animations/enemy_anim.png");
-        SDL_FRect src {0, 0, 32, 32};
-        SDL_FRect dest {t.position.x, t.position.y, 32, 32};
-
-        e.addComponent<Sprite>(tex, src, dest);
-
-        auto& c = e.addComponent<Collider>("projectile");
-        c.rect.w = dest.w;
-        c.rect.h = dest.h;
-
-        e.addComponent<ProjectileTag>();
+    //player bullet
+    auto& b(world.createEntity());
+    b.addComponent<TimedSpawner>(0.2f, [this, &player] {
+        if (player.getComponent<PlayerActionState>().playerState != PlayerState::Shooting) return;
+        auto& playerTransform = player.getComponent<Transform>();
+        auto& playerTarget = player.getComponent<Target>();
+        auto playerCenter = playerTarget.startingCenter;
+        auto& bullet(world.createDeferredEntity());
+        auto& bulletTransform = bullet.addComponent<Transform>(playerTransform);
+        bulletTransform.position += Vector2D(playerCenter.x, playerCenter.y);
+        Vector2D normalizedDir = {playerTarget.deltaX, playerTarget.deltaY};
+        normalizedDir.normalize();
+        bullet.addComponent<Velocity>(Vector2D(normalizedDir.x, normalizedDir.y), 600.0f);
+        SDL_Texture* bulletTex = TextureManager::load("../assets/ball.png");
+        SDL_FRect bulletSrc = {0, 0, 32, 32};
+        SDL_FRect bulletDst{bulletTransform.position.x, bulletTransform.position.y, 32, 32};
+        bullet.addComponent<Sprite>(bulletTex, bulletSrc, bulletDst);
+        SDL_FPoint bulletCenter {bulletDst.w/2.0f, bulletDst.h/2.0f};
+        bullet.addComponent<Target>(nullptr, SDL_FPoint(), bulletCenter);
+        bullet.addComponent<ProjectileTag>();
     });
 
     //create car

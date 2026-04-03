@@ -46,8 +46,9 @@ public:
                     sprite.src = anim.clips[anim.currentClip].frameIndices[anim.currentFrame];
                 }
 
-                if (t.rotation != 0) {
-                    TextureManager::draw(sprite.texture, sprite.src, sprite.dst, t.rotation, sprite.center);
+                if (t.rotation != 0 && entity->hasComponent<Target>()) {
+                    auto& target = entity->getComponent<Target>();
+                    TextureManager::draw(sprite.texture, sprite.src, sprite.dst, t.rotation, target.startingCenter);
                 } else {
                     TextureManager::draw(sprite.texture, sprite.src, sprite.dst);
                 }

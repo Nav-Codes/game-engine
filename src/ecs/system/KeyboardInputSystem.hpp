@@ -19,7 +19,7 @@ public:
             if (e->hasComponent<PlayerTag>() && e->hasComponent<Velocity>() && e->hasComponent<PlayerActionState>()) {
                 auto& v = e->getComponent<Velocity>();
                 auto& ps = e->getComponent<PlayerActionState>();
-                if (event.type == SDL_EVENT_KEY_DOWN) {
+                if (event.type == SDL_EVENT_KEY_DOWN || event.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
                     switch(event.key.key) {
                         case SDLK_W :
                             v.direction.y = -1;
@@ -39,15 +39,14 @@ public:
                             break;
                         default : break;
                     }
-                    auto key = event.key.key;
                     if ((ps.W || ps.A || ps.S || ps.D) && ps.playerState != PlayerState::Shooting) {
                         ps.playerState = PlayerState::Walking;
                     }
-                    if (key == SDLK_F) {
+                    if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
                         ps.playerState = PlayerState::Shooting;
                     }
                 }
-                if (event.type == SDL_EVENT_KEY_UP) {
+                if (event.type == SDL_EVENT_KEY_UP || event.type == SDL_EVENT_MOUSE_BUTTON_UP) {
                     switch(event.key.key) {
                         case SDLK_W :
                             v.direction.y = 0;
@@ -67,8 +66,7 @@ public:
                             break;
                         default : break;
                     }
-                    auto key = event.key.key;
-                    if (key == SDLK_F) {
+                    if (event.type == SDL_EVENT_MOUSE_BUTTON_UP) {
                         if (!ps.W && !ps.A && !ps.S && !ps.D) {
                             ps.playerState = PlayerState::Idle;
                         } else {

@@ -55,17 +55,12 @@ struct PlayerActionState {
     bool W{}, A{}, S{}, D{};
 };
 
-struct Rotator {
+struct Target {
     Transform* target = nullptr;
-};
-
-struct Targeting {
-    //could have rise/run thingy here and have player rotation system access this
-    //rise and run can be calculated in another targeting system
-    Entity& start;
-    Entity& target;
-    float rise;
-    float run;
+    SDL_FPoint targetCenter{};
+    SDL_FPoint startingCenter{};
+    float deltaX{};
+    float deltaY{};
 };
 
 enum class RenderLayer {
@@ -79,7 +74,6 @@ struct Sprite {
     SDL_FRect dst{};
     RenderLayer renderLayer = RenderLayer::World;
     bool visible = true;
-    SDL_FPoint center{};
 };
 
 struct Collider {

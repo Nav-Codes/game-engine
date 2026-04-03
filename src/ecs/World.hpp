@@ -22,6 +22,7 @@
 #include "SpawnTimerSystem.hpp"
 #include "PhysicsSystem.hpp"
 #include "RotationSystem.hpp"
+#include "TargetingSystem.hpp"
 #include "UIRenderSystem.hpp"
 #include "event/EventManager.hpp"
 #include "scene/SceneType.hpp"
@@ -48,6 +49,7 @@ class World {
     UIRenderSystem uiRenderSystem;
     MouseInputSystem mouseInputSystem;
     RotationSystem rotationSystem;
+    TargetingSystem targetingSystem;
 
 public:
     World() = default;
@@ -62,10 +64,11 @@ public:
             movementSystem.update(entities, dt);
             collisionSystem.update(*this);
             animationSystem.update(entities, dt);
+            rotationSystem.update(entities);
+            targetingSystem.update(entities);
             cameraSystem.update(entities);
             spawnTimerSystem.update(entities, dt);
             destructionSystem.update(entities);
-            rotationSystem.update(entities);
         }
 
         mouseInputSystem.update(*this, event);

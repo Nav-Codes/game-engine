@@ -75,6 +75,7 @@ add_executable(game-engine src/main.cpp
         src/ecs/system/MouseInputSystem.cpp
         src/ecs/system/RotationSystem.hpp
         src/ecs/system/TargetingSystem.hpp
+        src/ecs/system/ProjectileCallbacks/PlayerShootCallback.hpp
 )
 
 target_link_libraries(game-engine
