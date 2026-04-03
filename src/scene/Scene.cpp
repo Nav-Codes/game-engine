@@ -92,8 +92,8 @@ void Scene::initGameplay(const char *mapPath, int windowWidth, int windowHeight)
     auto& b(world.createEntity());
     b.addComponent<TimedSpawner>(0.2f, [this, &player, &cam] {
         //for fixing projectile rotation, make sure you have an
-        //SDL_FPoint copy variable, so it tracks that point instead
-        //of the changing mouse position point
+        //SDL_FPoint copy variable, so it tracks that point
+        //instead of the constantly changing mouse position point
         if (player.getComponent<PlayerActionState>().playerState != PlayerState::Shooting) return;
         auto& playerTransform = player.getComponent<Transform>();
         auto& playerTarget = player.getComponent<Target>();
@@ -104,9 +104,9 @@ void Scene::initGameplay(const char *mapPath, int windowWidth, int windowHeight)
         Vector2D normalizedDir = {playerTarget.deltaX, playerTarget.deltaY};
         normalizedDir.normalize();
         bullet.addComponent<Velocity>(Vector2D(normalizedDir.x, normalizedDir.y), 600.0f);
-        SDL_Texture* bulletTex = TextureManager::load("../assets/ball.png");
-        SDL_FRect bulletSrc = {0, 0, 32, 32};
-        SDL_FRect bulletDst{bulletTransform.position.x, bulletTransform.position.y, 32, 32};
+        SDL_Texture* bulletTex = TextureManager::load("../assets/mario.png");
+        SDL_FRect bulletSrc = {0, 0, 32, 44};
+        SDL_FRect bulletDst{bulletTransform.position.x, bulletTransform.position.y, 32, 44};
         bullet.addComponent<Sprite>(bulletTex, bulletSrc, bulletDst);
         SDL_FPoint bulletCenter {bulletDst.w/2.0f, bulletDst.h/2.0f};
         bullet.addComponent<Target>(&cam, SDL_FPoint(), bulletCenter);

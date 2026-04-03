@@ -64,8 +64,8 @@ public:
             movementSystem.update(entities, dt);
             collisionSystem.update(*this);
             animationSystem.update(entities, dt);
-            rotationSystem.update(entities);
             targetingSystem.update(entities);
+            rotationSystem.update(entities);
             cameraSystem.update(entities);
             spawnTimerSystem.update(entities, dt);
             destructionSystem.update(entities);
