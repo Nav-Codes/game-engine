@@ -85,12 +85,15 @@ void Scene::initGameplay(const char *mapPath, int windowWidth, int windowHeight)
     player.addComponent<Health>(Game::gameState.playerHealth);
     player.addComponent<PlayerActionState>();
     SDL_FPoint playerCenter {playerDst.w/2.0f, playerDst.h/2.0f};
-    player.addComponent<Target>(nullptr, SDL_FPoint(), playerCenter);
+    player.addComponent<Target>(&cam, SDL_FPoint(), playerCenter);
     player.addComponent<PlayerTag>();
 
     //player bullet
     auto& b(world.createEntity());
-    b.addComponent<TimedSpawner>(0.2f, [this, &player] {
+    b.addComponent<TimedSpawner>(0.2f, [this, &player, &cam] {
+        //for fixing projectile rotation, make sure you have an
+        //SDL_FPoint copy variable, so it tracks that point instead
+        //of the changing mouse position point
         if (player.getComponent<PlayerActionState>().playerState != PlayerState::Shooting) return;
         auto& playerTransform = player.getComponent<Transform>();
         auto& playerTarget = player.getComponent<Target>();
@@ -106,7 +109,7 @@ void Scene::initGameplay(const char *mapPath, int windowWidth, int windowHeight)
         SDL_FRect bulletDst{bulletTransform.position.x, bulletTransform.position.y, 32, 32};
         bullet.addComponent<Sprite>(bulletTex, bulletSrc, bulletDst);
         SDL_FPoint bulletCenter {bulletDst.w/2.0f, bulletDst.h/2.0f};
-        bullet.addComponent<Target>(nullptr, SDL_FPoint(), bulletCenter);
+        bullet.addComponent<Target>(&cam, SDL_FPoint(), bulletCenter);
         bullet.addComponent<ProjectileTag>();
     });
 

@@ -22,11 +22,14 @@ public:
 
                 //this might be affecting how the bullets are being rotated
                 float targetX, targetY;
-                if (target.target == nullptr) {
+                if (target.target->hasComponent<Camera>()) {
                     SDL_GetMouseState(&targetX, &targetY);
-                } else {
-                    targetX = target.target->position.x + target.targetCenter.x;
-                    targetY = target.target->position.y + target.targetCenter.y;
+                    targetX += target.target->getComponent<Camera>().view.x;
+                    targetY += target.target->getComponent<Camera>().view.y;
+                }
+                else if (target.target->hasComponent<Transform>()) {
+                    targetX = target.target->getComponent<Transform>().position.x + target.targetCenter.x;
+                    targetY = target.target->getComponent<Transform>().position.y + target.targetCenter.y;
                 }
 
                 float startingX = transform.position.x + target.startingCenter.x;

@@ -56,7 +56,7 @@ struct PlayerActionState {
 };
 
 struct Target {
-    Transform* target = nullptr;
+    Entity* target = nullptr;
     SDL_FPoint targetCenter{};
     SDL_FPoint startingCenter{};
     float deltaX{};
