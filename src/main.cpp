@@ -35,7 +35,7 @@ int main() {
     int actualFrameTime;
 
     game = new Game();
-    game->init("A1", 800, 600, false);
+    game->init("Mafia Revenge", 800, 600, false);
 
     //game loop
     while (game->running()) {

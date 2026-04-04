@@ -43,14 +43,14 @@ struct Brake {
     bool isBraking{};
 };
 
-enum class PlayerState {
+enum class PlayerAnimation {
     Idle,
     Walking,
     Shooting
 };
 
-struct PlayerActionState {
-    PlayerState playerState{};
+struct PlayerAnimationState {
+    PlayerAnimation animState{};
     //ensures player is idle only when player is not holding down any of these keys
     bool W{}, A{}, S{}, D{};
 };
@@ -65,7 +65,8 @@ struct Target {
 
 enum class RenderLayer {
     World,
-    UI
+    UI,
+    None
 };
 
 struct Sprite {
@@ -80,6 +81,10 @@ struct Collider {
     string tag;
     SDL_FRect rect{}; //position and size of collider
     bool enabled = true;
+};
+
+struct Interactable {
+    bool interactable{};
 };
 
 struct Animation {
@@ -133,5 +138,13 @@ struct PlayerTag{};
 struct ProjectileTag{};
 
 struct CarTag{};
+
+struct CameraFocusTag {
+    bool active{};
+};
+
+struct KeyboardFocusTag {
+    bool active{};
+};
 
 #endif //COMPONENT_HPP

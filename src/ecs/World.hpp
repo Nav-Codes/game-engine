@@ -59,7 +59,7 @@ public:
             mainMenuSystem.update(event);
         }
         else {
-            keyboardInputSystem.update(entities, event);
+            keyboardInputSystem.update(entities, event, *this);
             physicsSystem.update(entities, dt);
             movementSystem.update(entities, dt);
             collisionSystem.update(*this);

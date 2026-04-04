@@ -15,16 +15,16 @@ public:
     static string animCallback(Entity& e) {
         //we already check if the entity has a velocity and animation component
         //so no need to check again here
-        if (!e.hasComponent<PlayerActionState>()) return nullptr;
+        if (!e.hasComponent<PlayerAnimationState>()) return nullptr;
 
         string newClip;
 
-        switch (e.getComponent<PlayerActionState>().playerState) {
-            case PlayerState::Idle :
+        switch (e.getComponent<PlayerAnimationState>().animState) {
+            case PlayerAnimation::Idle :
                 newClip = "idle"; break;
-            case PlayerState::Walking:
+            case PlayerAnimation::Walking:
                 newClip = "walk"; break;
-            case PlayerState::Shooting :
+            case PlayerAnimation::Shooting:
                 newClip = "shoot"; break;
             default : newClip = "idle"; break;
         }

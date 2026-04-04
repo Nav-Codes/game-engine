@@ -77,15 +77,18 @@ void Scene::initGameplay(const char *mapPath, int windowWidth, int windowHeight)
     player.addComponent<Animation>(anim);
     SDL_Texture* tex = TextureManager::load("../assets/animations/player.png");
     SDL_FRect playerSrc = anim.clips[anim.currentClip].frameIndices[0];
-    SDL_FRect playerDst{playerTransform.position.x, playerTransform.position.y, 156, 103};
+    SDL_FRect playerDst{playerTransform.position.x, playerTransform.position.y, 78, 52};
     auto& playerCollider = player.addComponent<Collider>("player");
     playerCollider.rect.w = playerDst.w;
     playerCollider.rect.h = playerDst.h;
     player.addComponent<Sprite>(tex, playerSrc, playerDst);
     player.addComponent<Health>(Game::gameState.playerHealth);
-    player.addComponent<PlayerActionState>();
+    player.addComponent<PlayerAnimationState>();
     SDL_FPoint playerCenter {playerDst.w/2.0f, playerDst.h/2.0f};
     player.addComponent<Target>(&cam, SDL_FPoint(), playerCenter);
+    player.addComponent<CameraFocusTag>(true);
+    player.addComponent<KeyboardFocusTag>(true);
+    player.addComponent<Interactable>();
     player.addComponent<PlayerTag>();
 
     //player bullet
@@ -94,7 +97,7 @@ void Scene::initGameplay(const char *mapPath, int windowWidth, int windowHeight)
         //for fixing projectile rotation, make sure you have an
         //SDL_FPoint copy variable, so it tracks that point
         //instead of the constantly changing mouse position point
-        if (player.getComponent<PlayerActionState>().playerState != PlayerState::Shooting) return;
+        if (player.getComponent<PlayerAnimationState>().animState != PlayerAnimation::Shooting) return;
         auto& playerTransform = player.getComponent<Transform>();
         auto& playerTarget = player.getComponent<Target>();
         auto playerCenter = playerTarget.startingCenter;
@@ -104,29 +107,38 @@ void Scene::initGameplay(const char *mapPath, int windowWidth, int windowHeight)
         Vector2D normalizedDir = {playerTarget.deltaX, playerTarget.deltaY};
         normalizedDir.normalize();
         bullet.addComponent<Velocity>(Vector2D(normalizedDir.x, normalizedDir.y), 600.0f);
-        SDL_Texture* bulletTex = TextureManager::load("../assets/mario.png");
-        SDL_FRect bulletSrc = {0, 0, 32, 44};
-        SDL_FRect bulletDst{bulletTransform.position.x, bulletTransform.position.y, 32, 44};
+        SDL_Texture* bulletTex = TextureManager::load("../assets/ball.png");
+        SDL_FRect bulletSrc = {0, 0, 32, 32};
+        SDL_FRect bulletDst{bulletTransform.position.x, bulletTransform.position.y, 16, 16};
         bullet.addComponent<Sprite>(bulletTex, bulletSrc, bulletDst);
+        auto& bulletCollider = bullet.addComponent<Collider>("player_projectile");
+        bulletCollider.rect.w = bulletDst.w;
+        bulletCollider.rect.h = bulletDst.h;
         SDL_FPoint bulletCenter {bulletDst.w/2.0f, bulletDst.h/2.0f};
         bullet.addComponent<Target>(&cam, SDL_FPoint(), bulletCenter);
         bullet.addComponent<ProjectileTag>();
     });
 
     //create car
-    // auto& car(world.createEntity());
-    // auto& carTransform = car.addComponent<Transform>(Vector2D(100, 100), 0.0f, 1.0f);
-    // car.addComponent<Velocity>(Vector2D(0.0f, 0.0f), 0.0f, 240.0f);
-    // car.addComponent<Acceleration>(50.0f, SOUTH);
-    // car.addComponent<Brake>(4.0f);
-    // Animation carAnim = AssetManager::getAnimation("car");
-    // carAnim.animCallback = CarAnim::animCallback;
-    // car.addComponent<Animation>(carAnim);
-    // SDL_Texture* carTex = TextureManager::load("../assets/animations/car.png");
-    // SDL_FRect carSrc = carAnim.clips[carAnim.currentClip].frameIndices[0];
-    // SDL_FRect carDest {carTransform.position.x, carTransform.position.y, 100, 100};
-    // car.addComponent<Sprite>(carTex, carSrc, carDest);
-    // car.addComponent<CarTag>();
+    auto& car(world.createEntity());
+    auto& carTransform = car.addComponent<Transform>(Vector2D(100, 100), 0.0f, 1.0f);
+    car.addComponent<Velocity>(Vector2D(0.0f, 0.0f), 0.0f, 240.0f);
+    car.addComponent<Acceleration>(50.0f, SOUTH);
+    car.addComponent<Brake>(4.0f);
+    Animation carAnim = AssetManager::getAnimation("car");
+    carAnim.animCallback = CarAnim::animCallback;
+    car.addComponent<Animation>(carAnim);
+    SDL_Texture* carTex = TextureManager::load("../assets/animations/car.png");
+    SDL_FRect carSrc = carAnim.clips[carAnim.currentClip].frameIndices[0];
+    SDL_FRect carDest {carTransform.position.x, carTransform.position.y, 100, 100};
+    car.addComponent<Sprite>(carTex, carSrc, carDest);
+    auto& carCollider = car.addComponent<Collider>("car");
+    carCollider.rect.w = carDest.w;
+    carCollider.rect.h = carDest.h;
+    car.addComponent<CameraFocusTag>();
+    car.addComponent<KeyboardFocusTag>();
+    car.addComponent<Interactable>();
+    car.addComponent<CarTag>();
 
     auto& state(world.createEntity());
     state.addComponent<SceneState>();

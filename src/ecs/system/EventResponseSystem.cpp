@@ -16,7 +16,9 @@ EventResponseSystem::EventResponseSystem(World &world) {
 
             onCollision(collision, "item", world);
             onCollision(collision, "wall", world);
-            onCollision(collision, "projectile", world);
+            onCollision(collision, "player_projectile", world);
+            onCollision(collision, "enemy_projectile", world);
+            onCollision(collision, "car", world);
         });
 
     world.getEventManager().subscribe(
@@ -26,7 +28,8 @@ EventResponseSystem::EventResponseSystem(World &world) {
         const auto& playerAction = static_cast<const PlayerActionEvent&>(e);
 
         //TODO onPlayerAction
-
+        //maybe create a interactable bool that on collision of player and car is true and on exit sets to false
+        onPlayerAction(playerAction, {});
     });
 
     world.getEventManager().subscribe([this, &world](const BaseEvent& e) {
@@ -61,10 +64,9 @@ void EventResponseSystem::onCollision(const CollisionEvent &e, const char *other
 
     if (!getCollisionEntities(e, otherTag, player, other)) return;
 
+    //item collision
     if (std::string(otherTag) == "item") {
-
         //scene state
-
         if (e.state != CollisionState::Enter) return;
 
         for (auto& entity : world.getEntities()) {
@@ -77,13 +79,19 @@ void EventResponseSystem::onCollision(const CollisionEvent &e, const char *other
             }
         }
         other->destroy();
-    } else if (std::string(otherTag) == "wall") {
+    }
+
+    //wall collision
+    else if (std::string(otherTag) == "wall") {
 
         if (e.state != CollisionState::Stay) return;
 
         auto& t = player->getComponent<Transform>();
         t.position = t.oldPosition;
-    } else if (std::string(otherTag) == "projectile") {
+    }
+
+    //projectile collision
+    else if (std::string(otherTag) == "enemy_projectile") {
         if (e.state != CollisionState::Enter) return;
 
         auto& health = player->getComponent<Health>();
@@ -97,7 +105,23 @@ void EventResponseSystem::onCollision(const CollisionEvent &e, const char *other
             //change scenes defer
             Game::onSceneChangeRequest("gameover");
         }
+    }
 
+    //car collision
+    else if (std::string(otherTag) == "car") {
+        if (e.state == CollisionState::Enter) {
+            //if player is in the car, set the players interactable to true
+            if (player->hasComponent<Interactable>() && other->hasComponent<Interactable>()) {
+                player->getComponent<Interactable>().interactable = true;
+                other->getComponent<Interactable>().interactable = true;
+            }
+
+        } else if (e.state == CollisionState::Exit) {
+            if (player->hasComponent<Interactable>() && other->hasComponent<Interactable>()) {
+                player->getComponent<Interactable>().interactable = false;
+                other->getComponent<Interactable>().interactable = false;
+            }
+        }
     }
 }
 
@@ -121,7 +145,45 @@ bool EventResponseSystem::getCollisionEntities(const CollisionEvent &e, const ch
 }
 
 void EventResponseSystem::onPlayerAction(const PlayerActionEvent &e, const std::function<void(Entity *player, PlayerAction action)> &callback) {
+    //this is for when the player does stuff (walk, shoot, get into car)
+    //can maybe call this function in keyboard input system?
 
+    // i kinda want to change this so that i can use it more like the onCollision thing
+
+    // callback(e.player, e.action);
+
+    // player and car interaction
+    if (e.action == PlayerAction::CarInteract) {
+        //things to do to player
+        cout << "Entity: " << e.player->getComponent<Collider>().tag << endl;
+        if (e.player->hasComponent<PlayerTag>()) {
+            auto& player = e.player;
+            auto& playerCollider = player->getComponent<Collider>();
+            playerCollider.enabled = !playerCollider.enabled;
+            auto& playerSprite = player->getComponent<Sprite>();
+            playerSprite.visible = !playerSprite.visible;
+            auto& playerKeyboardTag = player->getComponent<KeyboardFocusTag>();
+            playerKeyboardTag.active = !playerKeyboardTag.active;
+            auto& playerCameraTag = player->getComponent<CameraFocusTag>();
+            playerCameraTag.active = !playerCameraTag.active;
+        }
+
+        //things to do for car
+        else if (e.player->hasComponent<CarTag>()) {
+            auto& car = e.player;
+            auto& carKeyboardTag = car->getComponent<KeyboardFocusTag>();
+            carKeyboardTag.active = !carKeyboardTag.active;
+            auto& carCameraTag = car->getComponent<CameraFocusTag>();
+            carCameraTag.active = !carCameraTag.active;
+        }
+
+        //need to get the car as well
+    }
+
+    //car/player interaction
+    // if () {
+    //
+    // }
 }
 
 

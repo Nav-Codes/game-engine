@@ -19,7 +19,7 @@ public:
 
         //find the player
         for (auto& e : entities) {
-            if (e->hasComponent<PlayerTag>()) {
+            if (e->hasComponent<CameraFocusTag>() && e->getComponent<CameraFocusTag>().active) {
                 playerEntity = e.get();
                 break;
             }
