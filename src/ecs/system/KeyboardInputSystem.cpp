@@ -92,109 +92,68 @@ void KeyboardInputSystem::update(const std::vector<std::unique_ptr<Entity> > &en
             auto& a = e->getComponent<Acceleration>();
             auto& b = e->getComponent<Brake>();
             if (event.type == SDL_EVENT_KEY_DOWN) {
-                switch(event.key.key) {
-                    case SDLK_W :
-                        if ((a.direction == SOUTH && v.speed > ZERO_EPSILON) || (a.direction == NORTH && v.speed < -ZERO_EPSILON)) {
-                            a.isAccelerating = false;
-                            b.isBraking = true;
-                        }
-                        else if (a.direction == SOUTH && v.speed == 0.0f) {
-                            a.isAccelerating = true;
-                            b.isBraking = false;
-                            v.speed = -JUMP_START;
-                        }
-                        else if (a.direction == NORTH || a.direction == EAST || a.direction == WEST) {
-                            if (v.speed == 0.0f) {
-                                v.speed = JUMP_START;
-                            }
-                            a.direction = v.speed > 0.0f ? NORTH : SOUTH;
-                            a.isAccelerating = true;
-                            b.isBraking = false;
-                        }
-                        // if (a.direction == EAST || a.direction == WEST) {//do turn animation logic }
-                        break;
-                    case SDLK_S :
-                        if ((a.direction == NORTH && v.speed > ZERO_EPSILON) || (a.direction == SOUTH && v.speed < -ZERO_EPSILON)) {
-                            a.isAccelerating = false;
-                            b.isBraking = true;
-                        }
-                        else if (a.direction == NORTH && v.speed == 0.0f) {
-                            a.isAccelerating = true;
-                            b.isBraking = false;
-                            v.speed = -JUMP_START;
-                        }
-                        else if (a.direction == SOUTH || a.direction == EAST || a.direction == WEST) {
-                            if (v.speed == 0.0f) {
-                                v.speed = JUMP_START;
-                            }
-                            a.direction = v.speed > 0.0f ? SOUTH : NORTH;
-                            a.isAccelerating = true;
-                            b.isBraking = false;
-                        }
-                        break;
-                    case SDLK_A :
-                        if ((a.direction == EAST && v.speed > ZERO_EPSILON) || (a.direction == WEST && v.speed < -ZERO_EPSILON)) {
-                            a.isAccelerating = false;
-                            b.isBraking = true;
-                        }
-                        else if (a.direction == EAST && v.speed == 0.0f) {
-                            a.isAccelerating = true;
-                            b.isBraking = false;
-                            v.speed = -JUMP_START;
-                        }
-                        else if (a.direction == WEST || a.direction == NORTH || a.direction == SOUTH) {
-                            if (v.speed == 0.0f) {
-                                v.speed = JUMP_START;
-                            }
-                            a.direction = v.speed > 0.0f ? WEST : EAST;
-                            a.isAccelerating = true;
-                            b.isBraking = false;
-                        }
-                        break;
-                    case SDLK_D :
-                        if ((a.direction == WEST && v.speed > ZERO_EPSILON) || (a.direction == EAST && v.speed < -ZERO_EPSILON)) {
-                            a.isAccelerating = false;
-                            b.isBraking = true;
-                        }
-                        else if (a.direction == WEST && v.speed == 0.0f) {
-                            a.isAccelerating = true;
-                            b.isBraking = false;
-                            v.speed = -JUMP_START;
-                        }
-                        else if (a.direction == EAST || a.direction == NORTH || a.direction == SOUTH) {
-                            if (v.speed == 0.0f) {
-                                v.speed = JUMP_START;
-                            }
-                            a.direction = v.speed > 0.0f ? EAST : WEST;
-                            a.isAccelerating = true;
-                            b.isBraking = false;
-                        }
-                        break;
-                    default : break;
-                }
+                manageDirection(event.key.key, v, a, b);
             }
             else if (event.type == SDL_EVENT_KEY_UP) {
-                switch(event.key.key) {
-                    case SDLK_W :
-                        a.isAccelerating = false;
-                        b.isBraking = false;
-                        break;
-                    case SDLK_S :
-                        a.isAccelerating = false;
-                        b.isBraking = false;
-                        break;
-                    case SDLK_A :
-                        a.isAccelerating = false;
-                        b.isBraking = false;
-                        break;
-                    case SDLK_D :
-                        a.isAccelerating = false;
-                        b.isBraking = false;
-                        break;
-                    default :
-                        break;
+                SDL_Keycode key = event.key.key;
+                if (key == SDLK_W || key == SDLK_A || key == SDLK_S || key == SDLK_D) {
+                    a.isAccelerating = false;
+                    b.isBraking = false;
                 }
             }
         }
+    }
+}
+
+void KeyboardInputSystem::manageDirection(SDL_Keycode key, Velocity& v, Acceleration& a, Brake& b) {
+    Direction dir;
+    Direction oppositeDir;
+    Direction turnDir1;
+    Direction turnDir2;
+
+    switch (key) {
+        case SDLK_W:
+            dir = NORTH;
+            oppositeDir = SOUTH;
+            turnDir1 = EAST;
+            turnDir2 = WEST;
+            break;
+        case SDLK_S:
+            dir = SOUTH;
+            oppositeDir = NORTH;
+            turnDir1 = EAST;
+            turnDir2 = WEST;
+            break;
+        case SDLK_A:
+            dir = WEST;
+            oppositeDir = EAST;
+            turnDir1 = NORTH;
+            turnDir2 = SOUTH;
+            break;
+        case SDLK_D:
+            dir = EAST;
+            oppositeDir = WEST;
+            turnDir1 = NORTH;
+            turnDir2 = SOUTH;
+            break;
+        default : break;
+    }
+
+    if ((a.direction == oppositeDir && v.speed > ZERO_EPSILON) || (a.direction == dir && v.speed < -ZERO_EPSILON)) {
+        a.isAccelerating = false;
+        b.isBraking = true;
+    }
+    else if (a.direction == oppositeDir && v.speed == 0.0f) {
+        a.isAccelerating = true;
+        b.isBraking = false;
+        v.speed = -JUMP_START;
+    }
+    else if (a.direction == dir || a.direction == turnDir1 || a.direction == turnDir2) {
+        if (v.speed == 0.0f) {
+            v.speed = JUMP_START;
+        }
+        a.direction = v.speed > 0.0f ? dir : oppositeDir;
+        a.isAccelerating = true;
+        b.isBraking = false;
     }
 }
