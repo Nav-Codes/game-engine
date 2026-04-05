@@ -24,6 +24,7 @@
 #include "RotationSystem.hpp"
 #include "TargetingSystem.hpp"
 #include "UIRenderSystem.hpp"
+#include "event-response-systems/ActionResponseSystem.hpp"
 #include "event/EventManager.hpp"
 #include "scene/SceneType.hpp"
 
@@ -45,6 +46,7 @@ class World {
     SpawnTimerSystem spawnTimerSystem;
     DestructionSystem destructionSystem;
     EventResponseSystem eventResponseSystem{*this};
+    ActionResponseSystem actionResponseSystem{*this};
     MainMenuSystem mainMenuSystem;
     UIRenderSystem uiRenderSystem;
     MouseInputSystem mouseInputSystem;

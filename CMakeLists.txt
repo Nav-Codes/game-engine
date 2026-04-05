@@ -76,6 +76,8 @@ add_executable(game-engine src/main.cpp
         src/ecs/system/RotationSystem.hpp
         src/ecs/system/TargetingSystem.hpp
         src/ecs/system/KeyboardInputSystem.cpp
+        src/ecs/system/event-response-systems/ActionResponseSystem.hpp
+        src/ecs/system/event-response-systems/ActionResponseSystem.cpp
 )
 
 target_link_libraries(game-engine

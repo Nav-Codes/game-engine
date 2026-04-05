@@ -4,7 +4,6 @@
 
 #ifndef EVENTRESPONSESYSTEM_HPP
 #define EVENTRESPONSESYSTEM_HPP
-#include <functional>
 
 #include "event/BaseEvent.hpp"
 
