@@ -56,16 +56,15 @@ void Game::init(const char *title, int width, int height, bool fullscreen) {
         isRunning = false;
     }
 
-    //load assets
-    AssetManager::loadAnimation("player_anim", "../assets/animations/bird_anim.xml");
-    AssetManager::loadAnimation("enemy", "../assets/animations/enemy_animations.xml");
+    //load animations
     AssetManager::loadAnimation("car", "../assets/animations/car.xml");
     AssetManager::loadAnimation("player", "../assets/animations/player.xml");
 
     //load scenes
     sceneManager.loadScene(SceneType::MainMenu, "mainmenu", nullptr, width, height);
-    sceneManager.loadScene(SceneType::Gameplay, "level1", "../assets/map.tmx", width, height);
-    sceneManager.loadScene(SceneType::Gameplay, "level2", "../assets/map2.tmx", width, height);
+    sceneManager.loadScene(SceneType::Gameplay, "level1", "../assets/map-data.tmx", width, height);
+    // sceneManager.loadScene(SceneType::Gameplay, "level1", "../assets/map.tmx", width, height);
+    // sceneManager.loadScene(SceneType::Gameplay, "level2", "../assets/map2.tmx", width, height);
 
     //init game data/state
     gameState.playerHealth = 5;

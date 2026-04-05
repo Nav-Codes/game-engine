@@ -24,72 +24,60 @@ Scene::Scene(SceneType sceneType, const char *sceneName, const char *mapPath, in
 
 void Scene::initGameplay(const char *mapPath, int windowWidth, int windowHeight) {
 //load our map
-    world.getMap().load(mapPath, TextureManager::load("../assets/spritesheet.png"));
-
-    //get colliders
-    for (auto &collider : world.getMap().colliders) {
-        auto& e = world.createEntity();
-        e.addComponent<Transform>(Vector2D(collider.rect.x, collider.rect.y), 0.0f, 1.0f);
-        auto& c = e.addComponent<Collider>("no_wall");
-        c.rect.x = collider.rect.x;
-        c.rect.y = collider.rect.y;
-        c.rect.w = collider.rect.w;
-        c.rect.h = collider.rect.h;
-
-        SDL_Texture* tex = TextureManager::load("../assets/spritesheet.png");
-        SDL_FRect colSrc {2, 36, 32, 32};
-        SDL_FRect colDst {c.rect.x, c.rect.y, c.rect.w, c.rect.h};
-
-        e.addComponent<Sprite>(tex, colSrc, colDst);
-    }
-
-    //add coins to designated points on the map
-    for (auto &collider : world.getMap().spawnPoints) {
-        auto& e = world.createEntity();
-        e.addComponent<Transform>(Vector2D(collider.rect.x, collider.rect.y), 0.0f, 1.0f);
-        auto& c = e.addComponent<Collider>("item");
-
-        c.rect.x = collider.rect.x;
-        c.rect.y = collider.rect.y;
-        c.rect.w = collider.rect.w;
-        c.rect.h = collider.rect.h;
-
-        SDL_Texture* itemTex = TextureManager::load("../assets/coin.png");
-        SDL_FRect colSrc {0, 0, 32, 32};
-        SDL_FRect colDst {c.rect.x, c.rect.y, 32, 32};
-
-        e.addComponent<Sprite>(itemTex, colSrc, colDst);
-    }
+    world.getMap().load(mapPath, TextureManager::load("../assets/CP_V1.0.4.png"));
 
     //create camera
     auto& cam = world.createEntity();
     SDL_FRect camView{};
     camView.w = windowWidth;
     camView.h = windowHeight;
-    cam.addComponent<Camera>(camView, world.getMap().width * 32, world.getMap().height * 32);
+    cam.addComponent<Camera>(camView, world.getMap().width * 16, world.getMap().height * 16);
+
+    //get colliders and object groups
+    for (auto& object : world.getMap().regularColliders) {
+        auto& e = world.createEntity();
+        e.addComponent<Transform>(Vector2D(object.rect.x, object.rect.y), 0.0f, 1.0f);
+        auto& c = e.addComponent<Collider>("wall");
+        c.rect.x = object.rect.x;
+        c.rect.y = object.rect.y;
+        c.rect.w = object.rect.w;
+        c.rect.h = object.rect.h;
+    }
+
+    for (auto& object : world.getMap().carColliders) {
+        auto& e = world.createEntity();
+        e.addComponent<Transform>(Vector2D(object.rect.x, object.rect.y), 0.0f, 1.0f);
+        auto& c = e.addComponent<Collider>("car_wall");
+        c.rect.x = object.rect.x;
+        c.rect.y = object.rect.y;
+        c.rect.w = object.rect.w;
+        c.rect.h = object.rect.h;
+    }
 
     //Player
     auto& player(world.createEntity());
-    auto& playerTransform = player.addComponent<Transform>(Vector2D(0, 0), 0.0f, 1.0f);
-    player.addComponent<Velocity>(Vector2D(0.0f, 0.0f), 120.0f);
-    Animation anim = AssetManager::getAnimation("player");
-    anim.animCallback = PlayerAnim::animCallback;
-    player.addComponent<Animation>(anim);
-    SDL_Texture* tex = TextureManager::load("../assets/animations/player.png");
-    SDL_FRect playerSrc = anim.clips[anim.currentClip].frameIndices[0];
-    SDL_FRect playerDst{playerTransform.position.x, playerTransform.position.y, 78, 52};
-    auto& playerCollider = player.addComponent<Collider>("player");
-    playerCollider.rect.w = playerDst.w;
-    playerCollider.rect.h = playerDst.h;
-    player.addComponent<Sprite>(tex, playerSrc, playerDst);
-    player.addComponent<Health>(Game::gameState.playerHealth);
-    player.addComponent<PlayerAnimationState>();
-    SDL_FPoint playerCenter {playerDst.w/2.0f, playerDst.h/2.0f};
-    player.addComponent<Target>(&cam, SDL_FPoint(), playerCenter);
-    player.addComponent<CameraFocusTag>(true);
-    player.addComponent<KeyboardFocusTag>(true);
-    player.addComponent<Interactable>();
-    player.addComponent<PlayerTag>();
+    for (auto& object : world.getMap().playerSpawnPoint) {
+        auto& playerTransform = player.addComponent<Transform>(Vector2D(object.rect.x, object.rect.y), 0.0f, 1.0f);
+        player.addComponent<Velocity>(Vector2D(0.0f, 0.0f), 120.0f);
+        Animation anim = AssetManager::getAnimation("player");
+        anim.animCallback = PlayerAnim::animCallback;
+        player.addComponent<Animation>(anim);
+        SDL_Texture* tex = TextureManager::load("../assets/animations/player.png");
+        SDL_FRect playerSrc = anim.clips[anim.currentClip].frameIndices[0];
+        SDL_FRect playerDst{playerTransform.position.x, playerTransform.position.y, 78, 52};
+        auto& playerCollider = player.addComponent<Collider>("player");
+        playerCollider.rect.w = playerDst.w;
+        playerCollider.rect.h = playerDst.h;
+        player.addComponent<Sprite>(tex, playerSrc, playerDst);
+        player.addComponent<Health>(Game::gameState.playerHealth);
+        player.addComponent<PlayerAnimationState>();
+        SDL_FPoint playerCenter {playerDst.w/2.0f, playerDst.h/2.0f};
+        player.addComponent<Target>(&cam, SDL_FPoint(), playerCenter);
+        player.addComponent<CameraFocusTag>(true);
+        player.addComponent<KeyboardFocusTag>(true);
+        player.addComponent<Interactable>();
+        player.addComponent<PlayerTag>();
+    }
 
     //player bullet
     auto& b(world.createEntity());
@@ -121,24 +109,61 @@ void Scene::initGameplay(const char *mapPath, int windowWidth, int windowHeight)
 
     //create car
     auto& car(world.createEntity());
-    auto& carTransform = car.addComponent<Transform>(Vector2D(100, 100), 0.0f, 1.0f);
-    car.addComponent<Velocity>(Vector2D(0.0f, 0.0f), 0.0f, 240.0f);
-    car.addComponent<Acceleration>(50.0f, SOUTH);
-    car.addComponent<Brake>(4.0f);
-    Animation carAnim = AssetManager::getAnimation("car");
-    carAnim.animCallback = CarAnim::animCallback;
-    car.addComponent<Animation>(carAnim);
-    SDL_Texture* carTex = TextureManager::load("../assets/animations/car.png");
-    SDL_FRect carSrc = carAnim.clips[carAnim.currentClip].frameIndices[0];
-    SDL_FRect carDest {carTransform.position.x, carTransform.position.y, 100, 100};
-    car.addComponent<Sprite>(carTex, carSrc, carDest);
-    auto& carCollider = car.addComponent<Collider>("car");
-    carCollider.rect.w = carDest.w;
-    carCollider.rect.h = carDest.h;
-    car.addComponent<CameraFocusTag>();
-    car.addComponent<KeyboardFocusTag>();
-    car.addComponent<Interactable>();
-    car.addComponent<CarTag>();
+    for (auto& object : world.getMap().carSpawnPoint) {
+        auto& carTransform = car.addComponent<Transform>(Vector2D(object.rect.x, object.rect.y), 0.0f, 1.0f);
+        car.addComponent<Velocity>(Vector2D(0.0f, 0.0f), 0.0f, 240.0f);
+        car.addComponent<Acceleration>(50.0f, SOUTH);
+        car.addComponent<Brake>(4.0f);
+        Animation carAnim = AssetManager::getAnimation("car");
+        carAnim.animCallback = CarAnim::animCallback;
+        car.addComponent<Animation>(carAnim);
+        SDL_Texture* carTex = TextureManager::load("../assets/animations/car.png");
+        SDL_FRect carSrc = carAnim.clips[carAnim.currentClip].frameIndices[0];
+        SDL_FRect carDest {carTransform.position.x, carTransform.position.y, 100, 100};
+        car.addComponent<Sprite>(carTex, carSrc, carDest);
+        auto& carCollider = car.addComponent<Collider>("car");
+        carCollider.rect.w = carDest.w;
+        carCollider.rect.h = carDest.h;
+        car.addComponent<CameraFocusTag>();
+        car.addComponent<KeyboardFocusTag>();
+        car.addComponent<Interactable>();
+        car.addComponent<CarTag>();
+    }
+
+    //get colliders
+    // for (auto &collider : world.getMap().colliders) {
+    //     auto& e = world.createEntity();
+    //     e.addComponent<Transform>(Vector2D(collider.rect.x, collider.rect.y), 0.0f, 1.0f);
+    //     auto& c = e.addComponent<Collider>("no_wall");
+    //     c.rect.x = collider.rect.x;
+    //     c.rect.y = collider.rect.y;
+    //     c.rect.w = collider.rect.w;
+    //     c.rect.h = collider.rect.h;
+    //
+    //     SDL_Texture* tex = TextureManager::load("../assets/CP_V1.0.4.png");
+    //     SDL_FRect colSrc {2, 36, 32, 32};
+    //     SDL_FRect colDst {c.rect.x, c.rect.y, c.rect.w, c.rect.h};
+    //
+    //     e.addComponent<Sprite>(tex, colSrc, colDst);
+    // }
+    //
+    // //add coins to designated points on the map
+    // for (auto &collider : world.getMap().spawnPoints) {
+    //     auto& e = world.createEntity();
+    //     e.addComponent<Transform>(Vector2D(collider.rect.x, collider.rect.y), 0.0f, 1.0f);
+    //     auto& c = e.addComponent<Collider>("item");
+    //
+    //     c.rect.x = collider.rect.x;
+    //     c.rect.y = collider.rect.y;
+    //     c.rect.w = collider.rect.w;
+    //     c.rect.h = collider.rect.h;
+    //
+    //     SDL_Texture* itemTex = TextureManager::load("../assets/coin.png");
+    //     SDL_FRect colSrc {0, 0, 32, 32};
+    //     SDL_FRect colDst {c.rect.x, c.rect.y, 32, 32};
+    //
+    //     e.addComponent<Sprite>(itemTex, colSrc, colDst);
+    // }
 
     auto& state(world.createEntity());
     state.addComponent<SceneState>();

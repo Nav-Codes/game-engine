@@ -123,6 +123,7 @@ void EventResponseSystem::onCollision(const CollisionEvent &e, const char *other
             if (player->hasComponent<Interactable>() && other->hasComponent<Interactable>()) {
                 player->getComponent<Interactable>().interactable = false;
                 other->getComponent<Interactable>().interactable = false;
+                other->getComponent<Acceleration>().isAccelerating = false;
             }
         }
     }
@@ -153,8 +154,8 @@ void EventResponseSystem::onPlayerAction(const PlayerActionEvent &e) {
         //things to do to player
         if (e.player->hasComponent<PlayerTag>()) {
             auto& player = e.player;
-            auto& playerCollider = player->getComponent<Collider>();
-            playerCollider.enabled = !playerCollider.enabled;
+            // auto& playerCollider = player->getComponent<Collider>();
+            // playerCollider.enabled = !playerCollider.enabled;
             auto& playerSprite = player->getComponent<Sprite>();
             playerSprite.visible = !playerSprite.visible;
             auto& playerKeyboardTag = player->getComponent<KeyboardFocusTag>();

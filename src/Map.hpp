@@ -11,6 +11,9 @@
 #include <SDL3/SDL.H>
 #include <Component.hpp>
 
+#include "tinyxml2.h"
+#include "Collision.hpp"
+
 class Map {
 public:
     Map() = default;
@@ -22,8 +25,14 @@ public:
     SDL_Texture *tileset = nullptr;
     int width{}, height{};
     std::vector<std::vector<int>> tileData;
-    std::vector<Collider> colliders;
-    std::vector<Collider> spawnPoints;
+    std::vector<Collider> regularColliders;
+    std::vector<Collider> carColliders;
+    std::vector<Collider> enemySpawnPoints;
+    std::vector<Collider> carSpawnPoint;
+    std::vector<Collider> playerSpawnPoint;
+
+private:
+    void addToList(vector<Collider>& collisionList, tinyxml2::XMLElement* elem);
 };
 
 #endif //MAP_HPP

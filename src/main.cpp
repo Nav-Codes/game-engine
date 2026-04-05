@@ -4,30 +4,6 @@
 Game *game = nullptr;
 
 int main() {
-    Vector2D a = Vector2D(3, 4);
-    Vector2D b = Vector2D(1, 2);
-    a=-a;
-    std::cout << a.x << "," << a.y << std::endl;
-    a=-a;
-
-    a+=b; // a is (4, 6)
-    std::cout << a.x << "," << a.y << std::endl;
-
-    Vector2D c = a - b;  // c is (3, 4)
-    std::cout << c.x << "," << c.y << std::endl;
-
-    Vector2D d = a * 2;  // d is (8, 12)
-    std::cout << d.x << "," << d.y << std::endl;
-
-    Vector2D e = 2 * a;  // e is also (8, 12)
-    std::cout << e.x << "," << e.y << std::endl;
-
-    Vector2D f = -a;     // f is (-4, -6)
-    std::cout << f.x << "," << f.y << std::endl;
-
-    bool same = (a == b); // false
-    std::cout << same << std::endl;
-
     const int FPS = 60;
     const int desiredFrameTime = 1000 / FPS; //16ms per frame
 
