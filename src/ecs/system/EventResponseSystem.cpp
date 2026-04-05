@@ -30,6 +30,15 @@ EventResponseSystem::EventResponseSystem(World &world) {
         onPlayerAction(playerAction);
     });
 
+    world.getEventManager().subscribe(
+    [this, &world](const BaseEvent& e) {
+
+        if (e.type != EventType::CarAction) return;
+        const auto& carAction = static_cast<const CarActionEvent&>(e);
+
+        onCarAction(carAction);
+    });
+
     world.getEventManager().subscribe([this, &world](const BaseEvent& e) {
         if (e.type != EventType::MouseInteraction) return;
         const auto& mouseInteractionEvent = static_cast<const MouseInteractionEvent&>(e);
@@ -174,6 +183,41 @@ void EventResponseSystem::onPlayerAction(const PlayerActionEvent &e) {
         }
     }
 }
+
+void EventResponseSystem::onCarAction(const CarActionEvent &e) {
+    auto& car = e.car;
+    if (!car->hasComponent<Velocity>() || !car->hasComponent<Acceleration>() || !car->hasComponent<Brake>())
+        return;
+    auto& v = car->getComponent<Velocity>();
+    auto& a = car->getComponent<Acceleration>();
+    auto& b = car->getComponent<Brake>();
+
+    if (e.action == CarAction::Accelerate) {
+        if ((a.direction == e.oppositeDir && v.speed > ZERO_EPSILON) || (a.direction == e.dir && v.speed < -ZERO_EPSILON)) {
+            a.isAccelerating = false;
+            b.isBraking = true;
+        }
+        else if (a.direction == e.oppositeDir && v.speed == 0.0f) {
+            a.isAccelerating = true;
+            b.isBraking = false;
+            v.speed = -JUMP_START;
+        }
+        else if (a.direction == e.dir || a.direction == e.turnDir1 || a.direction == e.turnDir2) {
+            if (v.speed == 0.0f) {
+                v.speed = JUMP_START;
+            }
+            a.direction = v.speed > 0.0f ? e.dir : e.oppositeDir;
+            a.isAccelerating = true;
+            b.isBraking = false;
+        }
+    }
+
+    else if (e.action == CarAction::Decelerate) {
+        a.isAccelerating = false;
+        b.isBraking = false;
+    }
+}
+
 
 
 

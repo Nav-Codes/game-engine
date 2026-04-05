@@ -5,11 +5,13 @@
 #ifndef BASEEVENT_HPP
 #define BASEEVENT_HPP
 
+#include "Direction.hpp"
 class Entity;
 
 enum class EventType {
     Collision,
     PlayerAction,
+    CarAction,
     MouseInteraction
 };
 
@@ -36,6 +38,20 @@ struct PlayerActionEvent : BaseEvent {
     PlayerAction action{};
     PlayerActionEvent(Entity* player, PlayerAction action) : player(player), action(action) {
         type = EventType::PlayerAction;
+    }
+};
+
+enum class CarAction {Accelerate, Decelerate};
+
+struct CarActionEvent : BaseEvent {
+    Entity* car = nullptr;
+    CarAction action{};
+    Direction dir;
+    Direction oppositeDir;
+    Direction turnDir1;
+    Direction turnDir2;
+    CarActionEvent(Entity* car, CarAction action) : car(car), action(action) {
+        type = EventType::CarAction;
     }
 };
 

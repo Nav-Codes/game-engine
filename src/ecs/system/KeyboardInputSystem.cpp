@@ -84,76 +84,55 @@ void KeyboardInputSystem::update(const std::vector<std::unique_ptr<Entity> > &en
         }
 
         //Car movement controls
-        else if (e->hasComponent<CarTag>() && e->hasComponent<Velocity>() && e->hasComponent<Acceleration>() && e->hasComponent<Brake>()) {
-            if (e->hasComponent<KeyboardFocusTag>())
-                if (!e->getComponent<KeyboardFocusTag>().active)
-                    continue;
-            auto& v = e->getComponent<Velocity>();
-            auto& a = e->getComponent<Acceleration>();
-            auto& b = e->getComponent<Brake>();
+        else if (e->hasComponent<CarTag>() && e->hasComponent<KeyboardFocusTag>() && e->getComponent<KeyboardFocusTag>().active) {
             if (event.type == SDL_EVENT_KEY_DOWN) {
-                manageDirection(event.key.key, v, a, b);
+                switch (event.key.key) {
+                    case SDLK_W: {
+                        CarActionEvent north{CarActionEvent{e.get(), CarAction::Accelerate}};
+                        north.dir = NORTH;
+                        north.oppositeDir = SOUTH;
+                        north.turnDir1 = EAST;
+                        north.turnDir2 = WEST;
+                        world.getEventManager().emit(CarActionEvent(north));
+                        break;
+                    }
+                    case SDLK_S: {
+                        CarActionEvent south{CarActionEvent{e.get(), CarAction::Accelerate}};
+                        south.dir = SOUTH;
+                        south.oppositeDir = NORTH;
+                        south.turnDir1 = EAST;
+                        south.turnDir2 = WEST;
+                        world.getEventManager().emit(CarActionEvent(south));
+                        break;
+                    }
+                    case SDLK_A: {
+                        CarActionEvent west{CarActionEvent{e.get(), CarAction::Accelerate}};
+                        west.dir = WEST;
+                        west.oppositeDir = EAST;
+                        west.turnDir1 = NORTH;
+                        west.turnDir2 = SOUTH;
+                        world.getEventManager().emit(CarActionEvent(west));
+                        break;
+                    }
+                    case SDLK_D: {
+                        CarActionEvent east{CarActionEvent{e.get(), CarAction::Accelerate}};
+                        east.dir = EAST;
+                        east.oppositeDir = WEST;
+                        east.turnDir1 = NORTH;
+                        east.turnDir2 = SOUTH;
+                        world.getEventManager().emit(CarActionEvent(east));
+                        break;
+                    }
+                    default : break;
+                }
             }
             else if (event.type == SDL_EVENT_KEY_UP) {
                 SDL_Keycode key = event.key.key;
                 if (key == SDLK_W || key == SDLK_A || key == SDLK_S || key == SDLK_D) {
-                    a.isAccelerating = false;
-                    b.isBraking = false;
+
+                    world.getEventManager().emit(CarActionEvent{e.get(), CarAction::Decelerate});
                 }
             }
         }
-    }
-}
-
-void KeyboardInputSystem::manageDirection(SDL_Keycode key, Velocity& v, Acceleration& a, Brake& b) {
-    Direction dir;
-    Direction oppositeDir;
-    Direction turnDir1;
-    Direction turnDir2;
-
-    switch (key) {
-        case SDLK_W:
-            dir = NORTH;
-            oppositeDir = SOUTH;
-            turnDir1 = EAST;
-            turnDir2 = WEST;
-            break;
-        case SDLK_S:
-            dir = SOUTH;
-            oppositeDir = NORTH;
-            turnDir1 = EAST;
-            turnDir2 = WEST;
-            break;
-        case SDLK_A:
-            dir = WEST;
-            oppositeDir = EAST;
-            turnDir1 = NORTH;
-            turnDir2 = SOUTH;
-            break;
-        case SDLK_D:
-            dir = EAST;
-            oppositeDir = WEST;
-            turnDir1 = NORTH;
-            turnDir2 = SOUTH;
-            break;
-        default : break;
-    }
-
-    if ((a.direction == oppositeDir && v.speed > ZERO_EPSILON) || (a.direction == dir && v.speed < -ZERO_EPSILON)) {
-        a.isAccelerating = false;
-        b.isBraking = true;
-    }
-    else if (a.direction == oppositeDir && v.speed == 0.0f) {
-        a.isAccelerating = true;
-        b.isBraking = false;
-        v.speed = -JUMP_START;
-    }
-    else if (a.direction == dir || a.direction == turnDir1 || a.direction == turnDir2) {
-        if (v.speed == 0.0f) {
-            v.speed = JUMP_START;
-        }
-        a.direction = v.speed > 0.0f ? dir : oppositeDir;
-        a.isAccelerating = true;
-        b.isBraking = false;
     }
 }

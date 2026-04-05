@@ -14,8 +14,6 @@ class World;
 class KeyboardInputSystem {
 public:
     void update(const std::vector<std::unique_ptr<Entity>>& entities, const SDL_Event& event, World& world);
-private:
-    void manageDirection(SDL_Keycode key, Velocity& v, Acceleration& a, Brake& b);
 };
 
 #endif //KEYBOARDINPUTSYSTEM_HPP

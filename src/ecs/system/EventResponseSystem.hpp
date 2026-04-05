@@ -22,6 +22,7 @@ private:
 
     //player action
     void onPlayerAction(const PlayerActionEvent& e);
+    void onCarAction(const CarActionEvent& e);
 
     void onMouseInteraction(const MouseInteractionEvent& e);
 };
