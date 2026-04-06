@@ -2,10 +2,9 @@
 // Created by navjo on 2/25/2026.
 //
 
+#include <random>
+
 #include "Scene.hpp"
-
-#include <iostream>
-
 #include "Game.hpp"
 #include "AnimationCallbacks/CarAnim.hpp"
 #include "AnimationCallbacks/EnemyAnimCallback.hpp"
@@ -149,42 +148,41 @@ void Scene::initGameplay(const char *mapPath, int windowWidth, int windowHeight)
         enemy.addComponent<EnemyAnimationState>(EnemyAnimation::Shooting);
         SDL_FPoint enemyCenter {enemyDst.w/2.0f, enemyDst.h/2.0f};
         enemy.addComponent<Target>(&player, playerCenter, enemyCenter);
-    }
 
-    //get colliders
-    // for (auto &collider : world.getMap().colliders) {
-    //     auto& e = world.createEntity();
-    //     e.addComponent<Transform>(Vector2D(collider.rect.x, collider.rect.y), 0.0f, 1.0f);
-    //     auto& c = e.addComponent<Collider>("no_wall");
-    //     c.rect.x = collider.rect.x;
-    //     c.rect.y = collider.rect.y;
-    //     c.rect.w = collider.rect.w;
-    //     c.rect.h = collider.rect.h;
-    //
-    //     SDL_Texture* tex = TextureManager::load("../assets/CP_V1.0.4.png");
-    //     SDL_FRect colSrc {2, 36, 32, 32};
-    //     SDL_FRect colDst {c.rect.x, c.rect.y, c.rect.w, c.rect.h};
-    //
-    //     e.addComponent<Sprite>(tex, colSrc, colDst);
-    // }
-    //
-    // //add coins to designated points on the map
-    // for (auto &collider : world.getMap().spawnPoints) {
-    //     auto& e = world.createEntity();
-    //     e.addComponent<Transform>(Vector2D(collider.rect.x, collider.rect.y), 0.0f, 1.0f);
-    //     auto& c = e.addComponent<Collider>("item");
-    //
-    //     c.rect.x = collider.rect.x;
-    //     c.rect.y = collider.rect.y;
-    //     c.rect.w = collider.rect.w;
-    //     c.rect.h = collider.rect.h;
-    //
-    //     SDL_Texture* itemTex = TextureManager::load("../assets/coin.png");
-    //     SDL_FRect colSrc {0, 0, 32, 32};
-    //     SDL_FRect colDst {c.rect.x, c.rect.y, 32, 32};
-    //
-    //     e.addComponent<Sprite>(itemTex, colSrc, colDst);
-    // }
+        random_device rd;
+        mt19937 gen(rd());
+        uniform_real_distribution<float> dist(1.0f, 3.0f);
+        float randomTime = dist(gen);
+
+        auto& enemyB(world.createEntity());
+        enemyB.addComponent<TimedSpawner>(randomTime, [this, &player, &enemy] {
+
+            if (enemy.getComponent<EnemyAnimationState>().animState != EnemyAnimation::Shooting) return;
+            auto& playerTarget = player.getComponent<Target>();
+            auto playerCenter = playerTarget.startingCenter;
+
+            auto& enemyTransform = enemy.getComponent<Transform>();
+            auto& enemyTarget = enemy.getComponent<Target>();
+            auto& enemyCenter = enemyTarget.startingCenter;
+
+            auto& bullet(world.createDeferredEntity());
+            auto& bulletTransform = bullet.addComponent<Transform>(enemyTransform);
+            bulletTransform.position += Vector2D(enemyCenter.x, enemyCenter.y);
+            Vector2D normalizedDir {enemyTarget.deltaX, enemyTarget.deltaY};
+            normalizedDir.normalize();
+            bullet.addComponent<Velocity>(Vector2D(normalizedDir.x, normalizedDir.y), 600.0f);
+            SDL_Texture* bulletTex = TextureManager::load("../assets/ball.png");
+            SDL_FRect bulletSrc = {0, 0, 32, 32};
+            SDL_FRect bulletDst{bulletTransform.position.x, bulletTransform.position.y, 16, 16};
+            bullet.addComponent<Sprite>(bulletTex, bulletSrc, bulletDst);
+            auto& bulletCollider = bullet.addComponent<Collider>("enemy_projectile");
+            bulletCollider.rect.w = bulletDst.w;
+            bulletCollider.rect.h = bulletDst.h;
+            SDL_FPoint bulletCenter {bulletDst.w/2.0f, bulletDst.h/2.0f};
+            bullet.addComponent<Target>(&player, playerCenter, bulletCenter);
+            bullet.addComponent<ProjectileTag>();
+        });
+    }
 
     auto& state(world.createEntity());
     state.addComponent<SceneState>();

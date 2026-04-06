@@ -22,7 +22,6 @@ public:
 
                 if (e->hasComponent<ProjectileTag>() && target.deltaX != 0.0f && target.deltaY != 0.0f) return;
 
-                //this might be affecting how the bullets are being rotated
                 float targetX, targetY;
                 if (target.target->hasComponent<Camera>()) {
                     SDL_GetMouseState(&targetX, &targetY);
