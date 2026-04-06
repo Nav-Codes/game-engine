@@ -1,0 +1,19 @@
+<!--312 x 206 frame size-->
+<animations>
+    <idle>
+        <frame x="0" y="0" w="257" h="220"/>
+    </idle>
+
+    <walk>
+        <frame x="257" y="0" w="257" h="220"/>
+        <frame x="514" y="0" w="257" h="220"/>
+        <frame x="0" y="220" w="257" h="220"/>
+        <frame x="257" y="220" w="257" h="220"/>
+    </walk>
+
+    <shoot>
+        <frame x="514" y="220" w="257" h="220"/>
+        <frame x="0" y="440" w="257" h="220"/>
+        <frame x="257" y="440" w="257" h="220"/>
+    </shoot>
+</animations>

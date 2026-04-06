@@ -27,23 +27,19 @@ void KeyboardInputSystem::update(const std::vector<std::unique_ptr<Entity> > &en
                 switch(event.key.key) {
                     case SDLK_W :
                         v.direction.y = -1;
-                        ps.W = true;
                         break;
                     case SDLK_S :
                         v.direction.y = 1;
-                        ps.S = true;
                         break;
                     case SDLK_A :
                         v.direction.x = -1;
-                        ps.A = true;
                         break;
                     case SDLK_D :
                         v.direction.x = 1;
-                        ps.D = true;
                         break;
                     default : break;
                 }
-                if ((ps.W || ps.A || ps.S || ps.D) && ps.animState != PlayerAnimation::Shooting) {
+                if ((v.direction.x != 0 || v.direction.y != 0) && ps.animState != PlayerAnimation::Shooting) {
                     ps.animState = PlayerAnimation::Walking;
                 }
                 if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
@@ -54,30 +50,26 @@ void KeyboardInputSystem::update(const std::vector<std::unique_ptr<Entity> > &en
                 switch(event.key.key) {
                     case SDLK_W :
                         v.direction.y = 0;
-                        ps.W = false;
                         break;
                     case SDLK_S :
                         v.direction.y = 0;
-                        ps.S = false;
                         break;
                     case SDLK_A :
                         v.direction.x = 0;
-                        ps.A = false;
                         break;
                     case SDLK_D :
                         v.direction.x = 0;
-                        ps.D = false;
                         break;
                     default : break;
                 }
                 if (event.type == SDL_EVENT_MOUSE_BUTTON_UP) {
-                    if (!ps.W && !ps.A && !ps.S && !ps.D) {
+                    if (v.direction.x == 0 && v.direction.y == 0) {
                         ps.animState = PlayerAnimation::Idle;
                     } else {
                         ps.animState = PlayerAnimation::Walking;
                     }
                 }
-                else if (!ps.W && !ps.A && !ps.S && !ps.D && ps.animState != PlayerAnimation::Shooting) {
+                else if (v.direction.x == 0 && v.direction.y == 0 && ps.animState != PlayerAnimation::Shooting) {
                     ps.animState = PlayerAnimation::Idle;
                 }
             }

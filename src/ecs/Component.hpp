@@ -51,8 +51,16 @@ enum class PlayerAnimation {
 
 struct PlayerAnimationState {
     PlayerAnimation animState{};
-    //ensures player is idle only when player is not holding down any of these keys
-    bool W{}, A{}, S{}, D{};
+};
+
+enum class EnemyAnimation {
+    Idle,
+    Walking,
+    Shooting
+};
+
+struct EnemyAnimationState {
+    EnemyAnimation animState{};
 };
 
 struct Target {

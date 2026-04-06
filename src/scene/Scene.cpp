@@ -8,6 +8,7 @@
 
 #include "Game.hpp"
 #include "AnimationCallbacks/CarAnim.hpp"
+#include "AnimationCallbacks/EnemyAnimCallback.hpp"
 #include "AnimationCallbacks/PlayerAnim.hpp"
 #include "manager/AssetManager.hpp"
 
@@ -56,6 +57,7 @@ void Scene::initGameplay(const char *mapPath, int windowWidth, int windowHeight)
 
     //Player
     auto& player(world.createEntity());
+    SDL_FPoint playerCenter;
     for (auto& object : world.getMap().playerSpawnPoint) {
         auto& playerTransform = player.addComponent<Transform>(Vector2D(object.rect.x, object.rect.y), 0.0f, 1.0f);
         player.addComponent<Velocity>(Vector2D(0.0f, 0.0f), 120.0f);
@@ -71,7 +73,7 @@ void Scene::initGameplay(const char *mapPath, int windowWidth, int windowHeight)
         player.addComponent<Sprite>(tex, playerSrc, playerDst);
         player.addComponent<Health>(Game::gameState.playerHealth);
         player.addComponent<PlayerAnimationState>();
-        SDL_FPoint playerCenter {playerDst.w/2.0f, playerDst.h/2.0f};
+        playerCenter = {playerDst.w/2.0f, playerDst.h/2.0f};
         player.addComponent<Target>(&cam, SDL_FPoint(), playerCenter);
         player.addComponent<CameraFocusTag>(true);
         player.addComponent<KeyboardFocusTag>(true);
@@ -128,6 +130,25 @@ void Scene::initGameplay(const char *mapPath, int windowWidth, int windowHeight)
         car.addComponent<KeyboardFocusTag>();
         car.addComponent<Interactable>();
         car.addComponent<CarTag>();
+    }
+
+    for (auto& object : world.getMap().enemySpawnPoints) {
+        auto& enemy(world.createEntity());
+        auto& enemyTransform = enemy.addComponent<Transform>(Vector2D(object.rect.x, object.rect.y), 0.0f, 1.0f);
+        enemy.addComponent<Velocity>(Vector2D(0.0f, 0.0f), 120.0f);
+        Animation enemyAnim = AssetManager::getAnimation("enemy");
+        enemyAnim.animCallback = EnemyAnimCallback::animCallback;
+        enemy.addComponent<Animation>(enemyAnim);
+        SDL_Texture* enemyTex = TextureManager::load("../assets/animations/enemy.png");
+        SDL_FRect enemySrc = enemyAnim.clips[enemyAnim.currentClip].frameIndices[0];
+        SDL_FRect enemyDst{enemyTransform.position.x, enemyTransform.position.y, 78, 52};
+        auto& enemyCollider = enemy.addComponent<Collider>("enemy");
+        enemyCollider.rect.w = enemyDst.w;
+        enemyCollider.rect.h = enemyDst.h;
+        enemy.addComponent<Sprite>(enemyTex, enemySrc, enemyDst);
+        enemy.addComponent<EnemyAnimationState>(EnemyAnimation::Shooting);
+        SDL_FPoint enemyCenter {enemyDst.w/2.0f, enemyDst.h/2.0f};
+        enemy.addComponent<Target>(&player, playerCenter, enemyCenter);
     }
 
     //get colliders

@@ -59,6 +59,7 @@ void Game::init(const char *title, int width, int height, bool fullscreen) {
     //load animations
     AssetManager::loadAnimation("car", "../assets/animations/car.xml");
     AssetManager::loadAnimation("player", "../assets/animations/player.xml");
+    AssetManager::loadAnimation("enemy", "../assets/animations/enemy.xml");
 
     //load scenes
     sceneManager.loadScene(SceneType::MainMenu, "mainmenu", nullptr, width, height);

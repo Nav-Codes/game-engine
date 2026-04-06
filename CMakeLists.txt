@@ -80,6 +80,7 @@ add_executable(game-engine src/main.cpp
         src/ecs/system/event-response-systems/ActionResponseSystem.cpp
         src/ecs/system/event-response-systems/CollisionResponseSystem.cpp
         src/ecs/system/event-response-systems/CollisionResponseSystem.hpp
+        src/ecs/system/AnimationCallbacks/EnemyAnimCallback.hpp
 )
 
 target_link_libraries(game-engine
