@@ -53,7 +53,7 @@ void Map::load(const char *path, SDL_Texture *ts) {
             addToList(carColliders, elem);
         }
 
-        if (name && std::string(name) == "Regular Collision Layer") {
+        if (name && std::string(name) == "Player Collision Layer") {
             addToList(regularColliders, elem);
         }
 

@@ -13,65 +13,49 @@ CollisionResponseSystem::CollisionResponseSystem(World &world) {
         if (e.type != EventType::Collision) return;
         const auto& collision = static_cast<const CollisionEvent&>(e);
 
-        onCollision(collision, "item", world);
-        onCollision(collision, "wall", world);
-        onCollision(collision, "player_projectile", world);
-        onCollision(collision, "enemy_projectile", world);
-        onCollision(collision, "car", world);
+        onPlayerCollision(collision, "wall", world);
+        onPlayerCollision(collision, "car", world);
+
+        onCarCollision(collision, "car_wall", world);
     });
+
 }
 
-void CollisionResponseSystem::onCollision(const CollisionEvent &e, const char *otherTag, World &world) {
+bool CollisionResponseSystem::getEntities(const CollisionEvent &e, const char *otherTag, Entity *&focus, Entity *&other, std::string focusedEntity) {
+    if (e.entityA == nullptr || e.entityB == nullptr) return false;
+
+    if (!(e.entityA->hasComponent<Collider>() && e.entityB->hasComponent<Collider>())) return false;
+
+    auto& colliderA = e.entityA->getComponent<Collider>();
+    auto& colliderB = e.entityB->getComponent<Collider>();
+
+    if (colliderA.tag == focusedEntity && colliderB.tag == otherTag) {
+        focus = e.entityA;
+        other = e.entityB;
+    } else if (colliderA.tag == otherTag && colliderB.tag == focusedEntity) {
+        focus = e.entityB;
+        other = e.entityA;
+    }
+
+    return focus && other;
+}
+
+void CollisionResponseSystem::onPlayerCollision(const CollisionEvent &e, const char *otherTag, World &world) {
     Entity* player = nullptr;
     Entity* other = nullptr;
 
-    if (!getCollisionEntities(e, otherTag, player, other)) return;
+    if (!getEntities(e, otherTag, player, other, "player")) return;
 
-    //item collision
-    if (std::string(otherTag) == "item") {
-        //scene state
-        if (e.state != CollisionState::Enter) return;
+    string tag = string(otherTag);
 
-        for (auto& entity : world.getEntities()) {
-            if (!entity->hasComponent<SceneState>()) continue;
-
-            auto& sceneState = entity->getComponent<SceneState>();
-            sceneState.coinsCollected++;
-            if (sceneState.coinsCollected > 1) {
-                Game::onSceneChangeRequest("level2");
-            }
-        }
-        other->destroy();
-    }
-
-    //wall collision
-    else if (std::string(otherTag) == "wall") {
-
+    if (tag == "wall") {
         if (e.state != CollisionState::Stay) return;
 
         auto& t = player->getComponent<Transform>();
         t.position = t.oldPosition;
     }
 
-    //projectile collision
-    else if (std::string(otherTag) == "enemy_projectile") {
-        if (e.state != CollisionState::Enter) return;
-
-        auto& health = player->getComponent<Health>();
-        health.currentHealth--;
-        Game::gameState.playerHealth = health.currentHealth;
-
-        cout << "Health: " << health.currentHealth << endl;
-
-        if (health.currentHealth <= 0) {
-            player->destroy();
-            //change scenes defer
-            Game::onSceneChangeRequest("gameover");
-        }
-    }
-
-    //car collision
-    else if (std::string(otherTag) == "car") {
+    else if (tag == "car") {
         if (e.state == CollisionState::Stay) {
             //when player gets out of the car
             if (other->getComponent<CameraFocusTag>().active && other->getComponent<KeyboardFocusTag>().active) {
@@ -83,8 +67,8 @@ void CollisionResponseSystem::onCollision(const CollisionEvent &e, const char *o
                 player->getComponent<Interactable>().interactable = true;
                 other->getComponent<Interactable>().interactable = true;
             }
-
-        } else if (e.state == CollisionState::Exit) {
+        }
+        else if (e.state == CollisionState::Exit) {
             if (player->hasComponent<Interactable>() && other->hasComponent<Interactable>()) {
                 player->getComponent<Interactable>().interactable = false;
                 other->getComponent<Interactable>().interactable = false;
@@ -94,21 +78,39 @@ void CollisionResponseSystem::onCollision(const CollisionEvent &e, const char *o
     }
 }
 
-bool CollisionResponseSystem::getCollisionEntities(const CollisionEvent &e, const char *otherTag, Entity *&player, Entity *&other) {
-    if (e.entityA == nullptr || e.entityB == nullptr) return false;
+void CollisionResponseSystem::onCarCollision(const CollisionEvent &e, const char *otherTag, World &world) {
+    Entity* car = nullptr;
+    Entity* other = nullptr;
 
-    if (!(e.entityA->hasComponent<Collider>() && e.entityB->hasComponent<Collider>())) return false;
+    if (!getEntities(e, otherTag, car, other, "car")) return;
 
-    auto& colliderA = e.entityA->getComponent<Collider>();
-    auto& colliderB = e.entityB->getComponent<Collider>();
+    string tag = string(otherTag);
 
-    if (colliderA.tag == "player" && colliderB.tag == otherTag) {
-        player = e.entityA;
-        other = e.entityB;
-    } else if (colliderA.tag == otherTag && colliderB.tag == "player") {
-        player = e.entityB;
-        other = e.entityA;
+    if (tag == "car_wall") {
+        if (e.state != CollisionState::Stay) return;
+
+        auto& t = car->getComponent<Transform>();
+        t.position = t.oldPosition;
     }
-
-    return player && other;
 }
+
+
+// void CollisionResponseSystem::onCollision(const CollisionEvent &e, const char *otherTag, World &world) {
+//
+//     //projectile collision
+//     else if (std::string(otherTag) == "enemy_projectile") {
+//         if (e.state != CollisionState::Enter) return;
+//
+//         auto& health = player->getComponent<Health>();
+//         health.currentHealth--;
+//         Game::gameState.playerHealth = health.currentHealth;
+//
+//         cout << "Health: " << health.currentHealth << endl;
+//
+//         if (health.currentHealth <= 0) {
+//             player->destroy();
+//             //change scenes defer
+//             Game::onSceneChangeRequest("gameover");
+//         }
+//     }
+// }
