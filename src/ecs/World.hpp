@@ -25,6 +25,7 @@
 #include "TargetingSystem.hpp"
 #include "UIRenderSystem.hpp"
 #include "event-response-systems/ActionResponseSystem.hpp"
+#include "event-response-systems/CollisionResponseSystem.hpp"
 #include "event/EventManager.hpp"
 #include "scene/SceneType.hpp"
 
@@ -47,6 +48,7 @@ class World {
     DestructionSystem destructionSystem;
     EventResponseSystem eventResponseSystem{*this};
     ActionResponseSystem actionResponseSystem{*this};
+    CollisionResponseSystem collisionResponseSystem{*this};
     MainMenuSystem mainMenuSystem;
     UIRenderSystem uiRenderSystem;
     MouseInputSystem mouseInputSystem;

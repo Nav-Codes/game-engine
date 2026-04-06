@@ -78,6 +78,8 @@ add_executable(game-engine src/main.cpp
         src/ecs/system/KeyboardInputSystem.cpp
         src/ecs/system/event-response-systems/ActionResponseSystem.hpp
         src/ecs/system/event-response-systems/ActionResponseSystem.cpp
+        src/ecs/system/event-response-systems/CollisionResponseSystem.cpp
+        src/ecs/system/event-response-systems/CollisionResponseSystem.hpp
 )
 
 target_link_libraries(game-engine
