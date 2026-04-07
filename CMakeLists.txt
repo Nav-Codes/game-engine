@@ -86,6 +86,7 @@ add_executable(game-engine src/main.cpp
         src/ecs/system/AnimationCallbacks/EnemyAnimCallback.hpp
         src/ecs/system/HUDSystem.hpp
         src/ecs/system/PreRenderSystem.hpp
+        src/ecs/system/HUDSystem.cpp
 )
 
 target_link_libraries(game-engine

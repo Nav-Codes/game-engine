@@ -65,14 +65,14 @@ void ActionResponseSystem::onPlayerAction(const PlayerActionEvent &e) {
         //things to do to player
         if (e.player->hasComponent<PlayerTag>()) {
             auto& player = e.player;
-            // auto& playerCollider = player->getComponent<Collider>();
-            // playerCollider.enabled = !playerCollider.enabled;
             auto& playerSprite = player->getComponent<Sprite>();
             playerSprite.visible = !playerSprite.visible;
             auto& playerKeyboardTag = player->getComponent<KeyboardFocusTag>();
             playerKeyboardTag.active = !playerKeyboardTag.active;
             auto& playerCameraTag = player->getComponent<CameraFocusTag>();
             playerCameraTag.active = !playerCameraTag.active;
+            auto& vel = player->getComponent<Velocity>();
+            vel.direction.x = vel.direction.y = 0;
         }
 
         //things to do for car

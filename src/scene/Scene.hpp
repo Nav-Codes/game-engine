@@ -42,6 +42,7 @@ private:
     void toggleSettingsOverlayVisibility(Entity& overlay);
 
     Entity& createPlayerPosLabel();
+    Entity& createPlayerWinLabel();
 };
 
 #endif //SCENE_HPP

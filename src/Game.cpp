@@ -82,17 +82,17 @@ void Game::init(const char *title, int width, int height, bool fullscreen) {
 
     //resolve scene callback
     onSceneChangeRequest = [this](string sceneName) {
-        if (sceneManager.currentScene->getName() == "gamewin" && sceneName=="gamewin") {
-            cout << "u win" << endl;
-            isRunning = false;
-            return;
-        }
-
-        if (sceneName == "gameover") {
-            cout << "u died" << endl;
-            isRunning = false;
-            return;
-        }
+        // if (sceneManager.currentScene->getName() == "gamewin" && sceneName=="gamewin") {
+        //     cout << "u win" << endl;
+        //     isRunning = false;
+        //     return;
+        // }
+        //
+        // if (sceneName == "gameover") {
+        //     cout << "u died" << endl;
+        //     isRunning = false;
+        //     return;
+        // }
 
         sceneManager.changeSceneDeferred(sceneName);
     };

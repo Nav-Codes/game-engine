@@ -191,12 +191,14 @@ void Scene::initGameplay(const char *mapPath, int windowWidth, int windowHeight)
 
         enemyChildren.children.push_back(&enemyBulletSpawner);
     }
+    Game::gameState.numEnemies = world.getMap().enemySpawnPoints.size();
 
     //add acene state
-    auto& state(world.createEntity());
-    state.addComponent<SceneState>();
+    // auto& state(world.createEntity());
+    // state.addComponent<SceneState>();
 
     createPlayerPosLabel();
+    createPlayerWinLabel();
 }
 
 Entity &Scene::createSettingsOverlay(int windowWidth, int windowHeight) {
@@ -323,4 +325,24 @@ Entity &Scene::createPlayerPosLabel() {
 
     playerPositionLabel.addComponent<Transform>(Vector2D(10, 10), 0.0f, 1.0f);
     return playerPositionLabel;
+}
+
+Entity &Scene::createPlayerWinLabel() {
+    auto& playerWinLabel(world.createEntity());
+
+    Label label = {
+        "You Win! Press R to restart",
+        AssetManager::getFont("arial"),
+        {0, 255, 0, 255},
+        LabelType::Win,
+        "playerWin"
+    };
+    label.dirty = true;
+    label.visible = false;
+
+    TextureManager::loadLabel(label);
+    playerWinLabel.addComponent<Label>(label);
+
+    playerWinLabel.addComponent<Transform>(Vector2D(300, 200), 0.0f, 1.0f);
+    return playerWinLabel;
 }

@@ -15,6 +15,7 @@
 
 struct GameState {
     int playerHealth;
+    int numEnemies;
 };
 
 class Game {

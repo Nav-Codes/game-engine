@@ -3,6 +3,8 @@
 //
 
 #include "KeyboardInputSystem.hpp"
+
+#include "Game.hpp"
 #include "World.hpp"
 
 //changes direction of entity
@@ -37,6 +39,8 @@ void KeyboardInputSystem::update(const std::vector<std::unique_ptr<Entity> > &en
                     case SDLK_D :
                         v.direction.x = 1;
                         break;
+                    case SDLK_R :
+                        Game::onSceneChangeRequest("level1");
                     default : break;
                 }
                 if ((v.direction.x != 0 || v.direction.y != 0) && ps.animState != PlayerAnimation::Shooting) {

@@ -150,6 +150,7 @@ void CollisionResponseSystem::onEnemyCollision(const CollisionEvent &e, const ch
                     childEntity->destroy();
                 }
                 enemy->destroy();
+                Game::gameState.numEnemies--;
             }
         }
     }

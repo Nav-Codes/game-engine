@@ -147,13 +147,17 @@ struct Children {
     std::vector<Entity*> children{};
 };
 
-enum class LabelType {PlayerPosition,Damage,Health};
+enum class LabelType {
+    Win,
+    Damage,
+    Health
+};
 
 struct Label {
     string text;
     TTF_Font* font = nullptr;
     SDL_Color color{};
-    LabelType type = LabelType::PlayerPosition;
+    LabelType type = LabelType::Health;
     string textureCacheKey{};
     SDL_Texture* texture = nullptr;
     SDL_FRect dst{};
