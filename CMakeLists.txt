@@ -28,8 +28,8 @@ endif()
 
 add_executable(game-engine src/main.cpp
         src/Game.cpp
-        src/TextureManager.hpp
-        src/TextureManager.cpp
+        src/manager/TextureManager.hpp
+        src/manager/TextureManager.cpp
         src/Game.hpp
         src/Map.hpp
         src/Map.cpp

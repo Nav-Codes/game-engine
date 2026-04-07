@@ -8,7 +8,7 @@
 #include <iostream>
 #include <memory>
 
-#include "TextureManager.hpp"
+#include "manager/TextureManager.hpp"
 #include <sstream>
 
 

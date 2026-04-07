@@ -13,7 +13,7 @@ using namespace std;
 #include "Component.hpp"
 #include "Entity.hpp"
 #include "RenderUtils.hpp"
-#include "TextureManager.hpp"
+#include "../../manager/TextureManager.hpp"
 
 class UIRenderSystem {
 public:
