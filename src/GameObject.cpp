@@ -34,7 +34,7 @@ void GameObject::update(float deltaTime) {
 }
 
 void GameObject::draw() {
-    TextureManager::draw(texture, srcRect, dstRect);
+    TextureManager::draw(texture, &srcRect, &dstRect);
 }
 
 

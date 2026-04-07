@@ -13,6 +13,7 @@
 #include "Direction.hpp"
 #include "Entity.hpp"
 #include "utils/Vector2D.hpp"
+#include "SDL3_ttf/SDL_ttf.h"
 
 using namespace std;
 
@@ -144,6 +145,20 @@ struct Parent {
 
 struct Children {
     std::vector<Entity*> children{};
+};
+
+enum class LabelType {PlayerPosition,Damage,Health};
+
+struct Label {
+    string text;
+    TTF_Font* font = nullptr;
+    SDL_Color color{};
+    LabelType type = LabelType::PlayerPosition;
+    string textureCacheKey{};
+    SDL_Texture* texture = nullptr;
+    SDL_FRect dst{};
+    bool visible = true;
+    bool dirty = false;
 };
 
 struct PlayerTag{};

@@ -5,6 +5,8 @@
 #ifndef VECTOR2D_HPP
 #define VECTOR2D_HPP
 
+#include <iostream>
+
 class Vector2D {
 public:
     float x = 0.0f;
@@ -50,5 +52,10 @@ public:
 
     Vector2D& normalize();
 };
+
+inline std::ostream& operator<<(std::ostream& os, const Vector2D& vec) {
+    os << "(" << static_cast<int>(vec.x) << ", " << static_cast<int>(vec.y) << ")";
+    return os;
+}
 
 #endif //VECTOR2D_HPP

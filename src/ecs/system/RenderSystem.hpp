@@ -50,7 +50,7 @@ public:
                     auto& target = entity->getComponent<Target>();
                     TextureManager::draw(sprite.texture, sprite.src, sprite.dst, t.rotation, target.startingCenter);
                 } else {
-                    TextureManager::draw(sprite.texture, sprite.src, sprite.dst);
+                    TextureManager::draw(sprite.texture, &sprite.src, &sprite.dst);
                 }
             }
         }

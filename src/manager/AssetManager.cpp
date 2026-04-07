@@ -9,6 +9,16 @@
 using namespace std;
 
 unordered_map<string, Animation> AssetManager::animations;
+unordered_map<string, TTF_Font*> AssetManager::fonts;
+
+void AssetManager::loadFont(const string &name, const char *path, float fontSize) {
+    fonts.emplace(name, TTF_OpenFont(path, fontSize));
+}
+
+TTF_Font *AssetManager::getFont(const std::string &name) {
+    return fonts[name];
+}
+
 
 void AssetManager::loadAnimation(const string &clipName, const char *path) {
     Animation animation = loadAnimaitonFromXML(path);

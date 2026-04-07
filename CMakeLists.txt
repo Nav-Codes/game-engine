@@ -8,9 +8,11 @@ set(CMAKE_CXX_STANDARD 20)
 if(WIN32)
     set(SDL3_PATH "C:/Program Files/SDL/sdl3")
     set(SDL3_IMAGE_PATH "C:/Program Files/SDL/sdl3_image")
+    set(SDL3_TTF_PATH "C:/Program Files/SDL/sdl3_ttf")
     include_directories(
             ${SDL3_PATH}/include
             ${SDL3_IMAGE_PATH}/include
+            ${SDL3_TTF_PATH}/include
             ${PROJECT_SOURCE_DIR}/src
             ${PROJECT_SOURCE_DIR}/src/utils
             ${PROJECT_SOURCE_DIR}/src/ecs
@@ -20,6 +22,7 @@ if(WIN32)
     link_directories(
             ${SDL3_PATH}/lib
             ${SDL3_IMAGE_PATH}/lib
+            ${SDL3_TTF_PATH}/lib
     )
 endif()
 
@@ -81,8 +84,10 @@ add_executable(game-engine src/main.cpp
         src/ecs/system/event-response-systems/CollisionResponseSystem.cpp
         src/ecs/system/event-response-systems/CollisionResponseSystem.hpp
         src/ecs/system/AnimationCallbacks/EnemyAnimCallback.hpp
+        src/ecs/system/HUDSystem.hpp
+        src/ecs/system/PreRenderSystem.hpp
 )
 
 target_link_libraries(game-engine
-    SDL3 SDL3_IMAGE
+    SDL3 SDL3_IMAGE SDL3_ttf
 )

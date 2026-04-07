@@ -155,6 +155,7 @@ void CollisionResponseSystem::onEnemyCollision(const CollisionEvent &e, const ch
     }
 }
 
+//more efficient way of destroying the projectiles when they hit a wall
 void CollisionResponseSystem::onProjectileCollision(const CollisionEvent &e, const char *otherTag, World &world) {
     Entity* projectile = nullptr;
     Entity* other = nullptr;

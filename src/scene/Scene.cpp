@@ -192,8 +192,11 @@ void Scene::initGameplay(const char *mapPath, int windowWidth, int windowHeight)
         enemyChildren.children.push_back(&enemyBulletSpawner);
     }
 
+    //add acene state
     auto& state(world.createEntity());
     state.addComponent<SceneState>();
+
+    createPlayerPosLabel();
 }
 
 Entity &Scene::createSettingsOverlay(int windowWidth, int windowHeight) {
@@ -304,8 +307,20 @@ void Scene::createSettingsUIComponents(Entity &overlay) {
     parentChildren.children.push_back(&closeButton);
 }
 
+Entity &Scene::createPlayerPosLabel() {
+    auto& playerPositionLabel(world.createEntity());
 
+    Label label = {
+        "Test String",
+        AssetManager::getFont("arial"),
+        {255, 255, 255, 255},
+        LabelType::Health,
+        "playerHealth"
+    };
 
+    TextureManager::loadLabel(label);
+    playerPositionLabel.addComponent<Label>(label);
 
-
-
+    playerPositionLabel.addComponent<Transform>(Vector2D(10, 10), 0.0f, 1.0f);
+    return playerPositionLabel;
+}

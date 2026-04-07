@@ -13,6 +13,7 @@
 #include "DestructionSystem.hpp"
 #include "Entity.hpp"
 #include "EventResponseSystem.hpp"
+#include "HUDSystem.hpp"
 #include "KeyboardInputSystem.hpp"
 #include "MainMenuSystem.hpp"
 #include "Map.hpp"
@@ -21,6 +22,7 @@
 #include "RenderSystem.hpp"
 #include "SpawnTimerSystem.hpp"
 #include "PhysicsSystem.hpp"
+#include "PreRenderSystem.hpp"
 #include "RotationSystem.hpp"
 #include "TargetingSystem.hpp"
 #include "UIRenderSystem.hpp"
@@ -52,6 +54,8 @@ class World {
     MainMenuSystem mainMenuSystem;
     UIRenderSystem uiRenderSystem;
     MouseInputSystem mouseInputSystem;
+    HUDSystem hudSystem;
+    PreRenderSystem preRenderSystem;
     RotationSystem rotationSystem;
     TargetingSystem targetingSystem;
 
@@ -73,9 +77,11 @@ public:
             cameraSystem.update(entities);
             spawnTimerSystem.update(entities, dt);
             destructionSystem.update(entities);
+            hudSystem.update(entities);
         }
 
         mouseInputSystem.update(*this, event);
+        preRenderSystem.update(entities);
 
         synchronizeEntities();
         cleanup();
