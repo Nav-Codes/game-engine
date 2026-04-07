@@ -18,6 +18,7 @@ public:
     void onPlayerCollision(const CollisionEvent& e, const char* otherTag, World& world);
     void onCarCollision(const CollisionEvent& e, const char* otherTag, World& world);
     void onEnemyCollision(const CollisionEvent& e, const char* otherTag, World& world);
+    void onProjectileCollision(const CollisionEvent& e, const char* otherTag, World& world);
 
     bool getEntities(const CollisionEvent& e, const char* otherTag, Entity*& focus, Entity*& other, std::string focusedEntity);
 

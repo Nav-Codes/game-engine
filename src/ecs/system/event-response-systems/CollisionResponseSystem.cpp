@@ -20,6 +20,9 @@ CollisionResponseSystem::CollisionResponseSystem(World &world) {
         onEnemyCollision(collision, "player_projectile", world);
 
         onCarCollision(collision, "car_wall", world);
+
+        onProjectileCollision(collision, "car", world);
+        onProjectileCollision(collision, "wall", world);
     });
 
 }
@@ -102,13 +105,25 @@ void CollisionResponseSystem::onCarCollision(const CollisionEvent &e, const char
 
     if (!getEntities(e, otherTag, car, other, "car")) return;
 
-    string tag = string(otherTag);
+    string otherEntityTag = string(otherTag);
 
-    if (tag == "car_wall") {
-        if (e.state != CollisionState::Stay) return;
+    if (otherEntityTag == "car_wall") {
+        if (e.state == CollisionState::Enter) {
+            auto& acc = car->getComponent<Acceleration>();
+            acc.isAccelerating = false;
+        }
+        else if (e.state == CollisionState::Stay) {
+            auto& t = car->getComponent<Transform>();
+            t.position = t.oldPosition;
+            auto& vel = car->getComponent<Velocity>();
+            vel.speed = 0;
+        }
+    }
 
-        auto& t = car->getComponent<Transform>();
-        t.position = t.oldPosition;
+    if (otherEntityTag == "enemy_projectile" || otherEntityTag == "player_projectile") {
+        if (e.state != CollisionState::Enter) return;
+
+        other->destroy();
     }
 }
 
@@ -140,4 +155,19 @@ void CollisionResponseSystem::onEnemyCollision(const CollisionEvent &e, const ch
     }
 }
 
+void CollisionResponseSystem::onProjectileCollision(const CollisionEvent &e, const char *otherTag, World &world) {
+    Entity* projectile = nullptr;
+    Entity* other = nullptr;
 
+    if (!getEntities(e, otherTag, projectile, other, "player_projectile")) {
+        if (!getEntities(e, otherTag, projectile, other, "enemy_projectile")) return;
+    }
+
+    string otherEntityTag = string(otherTag);
+
+    if (otherEntityTag == "car" || otherEntityTag == "wall") {
+        if (e.state != CollisionState::Enter) return;
+
+        projectile->destroy();
+    }
+}
