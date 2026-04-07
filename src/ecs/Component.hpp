@@ -124,6 +124,11 @@ struct SceneState {
 
 struct Health {
     int currentHealth{};
+    int maxHealth{};
+};
+
+struct Damage {
+    int damage{};
 };
 
 struct Clickable {

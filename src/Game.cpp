@@ -64,18 +64,16 @@ void Game::init(const char *title, int width, int height, bool fullscreen) {
     //load scenes
     sceneManager.loadScene(SceneType::MainMenu, "mainmenu", nullptr, width, height);
     sceneManager.loadScene(SceneType::Gameplay, "level1", "../assets/map-data.tmx", width, height);
-    // sceneManager.loadScene(SceneType::Gameplay, "level1", "../assets/map.tmx", width, height);
-    // sceneManager.loadScene(SceneType::Gameplay, "level2", "../assets/map2.tmx", width, height);
 
     //init game data/state
-    gameState.playerHealth = 5;
+    gameState.playerHealth = 10;
 
     //start level 1
     sceneManager.changeSceneDeferred("mainmenu");
 
     //resolve scene callback
     onSceneChangeRequest = [this](string sceneName) {
-        if (sceneManager.currentScene->getName() == "level2" && sceneName=="level2") {
+        if (sceneManager.currentScene->getName() == "gamewin" && sceneName=="gamewin") {
             cout << "u win" << endl;
             isRunning = false;
             return;

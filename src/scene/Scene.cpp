@@ -70,7 +70,7 @@ void Scene::initGameplay(const char *mapPath, int windowWidth, int windowHeight)
         playerCollider.rect.w = playerDst.w;
         playerCollider.rect.h = playerDst.h;
         player.addComponent<Sprite>(tex, playerSrc, playerDst);
-        player.addComponent<Health>(Game::gameState.playerHealth);
+        player.addComponent<Health>(Game::gameState.playerHealth, 10);
         player.addComponent<PlayerAnimationState>();
         playerCenter = {playerDst.w/2.0f, playerDst.h/2.0f};
         player.addComponent<Target>(&cam, SDL_FPoint(), playerCenter);
@@ -81,8 +81,8 @@ void Scene::initGameplay(const char *mapPath, int windowWidth, int windowHeight)
     }
 
     //player bullet
-    auto& b(world.createEntity());
-    b.addComponent<TimedSpawner>(0.2f, [this, &player, &cam] {
+    auto& playerBulletSpawner(world.createEntity());
+    playerBulletSpawner.addComponent<TimedSpawner>(0.2f, [this, &player, &cam] {
         //for fixing projectile rotation, make sure you have an
         //SDL_FPoint copy variable, so it tracks that point
         //instead of the constantly changing mouse position point
@@ -105,6 +105,7 @@ void Scene::initGameplay(const char *mapPath, int windowWidth, int windowHeight)
         bulletCollider.rect.h = bulletDst.h;
         SDL_FPoint bulletCenter {bulletDst.w/2.0f, bulletDst.h/2.0f};
         bullet.addComponent<Target>(&cam, SDL_FPoint(), bulletCenter);
+        bullet.addComponent<Damage>(1);
         bullet.addComponent<ProjectileTag>();
     });
 
@@ -131,6 +132,7 @@ void Scene::initGameplay(const char *mapPath, int windowWidth, int windowHeight)
         car.addComponent<CarTag>();
     }
 
+    //create enemies
     for (auto& object : world.getMap().enemySpawnPoints) {
         auto& enemy(world.createEntity());
         auto& enemyTransform = enemy.addComponent<Transform>(Vector2D(object.rect.x, object.rect.y), 0.0f, 1.0f);
@@ -148,16 +150,19 @@ void Scene::initGameplay(const char *mapPath, int windowWidth, int windowHeight)
         enemy.addComponent<EnemyAnimationState>(EnemyAnimation::Shooting);
         SDL_FPoint enemyCenter {enemyDst.w/2.0f, enemyDst.h/2.0f};
         enemy.addComponent<Target>(&player, playerCenter, enemyCenter);
+        enemy.addComponent<Health>(3, 3);
+        auto& enemyChildren = enemy.addComponent<Children>();
 
         random_device rd;
         mt19937 gen(rd());
         uniform_real_distribution<float> dist(1.0f, 3.0f);
         float randomTime = dist(gen);
 
-        auto& enemyB(world.createEntity());
-        enemyB.addComponent<TimedSpawner>(randomTime, [this, &player, &enemy] {
+        //create enemy bullets
+        auto& enemyBulletSpawner(world.createEntity());
+        enemyBulletSpawner.addComponent<TimedSpawner>(randomTime, [this, &player, &enemy] {
 
-            if (enemy.getComponent<EnemyAnimationState>().animState != EnemyAnimation::Shooting) return;
+            if (enemy.isActive() && enemy.getComponent<EnemyAnimationState>().animState != EnemyAnimation::Shooting) return;
             auto& playerTarget = player.getComponent<Target>();
             auto playerCenter = playerTarget.startingCenter;
 
@@ -180,8 +185,11 @@ void Scene::initGameplay(const char *mapPath, int windowWidth, int windowHeight)
             bulletCollider.rect.h = bulletDst.h;
             SDL_FPoint bulletCenter {bulletDst.w/2.0f, bulletDst.h/2.0f};
             bullet.addComponent<Target>(&player, playerCenter, bulletCenter);
+            bullet.addComponent<Damage>(1);
             bullet.addComponent<ProjectileTag>();
         });
+
+        enemyChildren.children.push_back(&enemyBulletSpawner);
     }
 
     auto& state(world.createEntity());

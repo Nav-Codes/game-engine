@@ -15,6 +15,9 @@ CollisionResponseSystem::CollisionResponseSystem(World &world) {
 
         onPlayerCollision(collision, "wall", world);
         onPlayerCollision(collision, "car", world);
+        onPlayerCollision(collision, "enemy_projectile", world);
+
+        onEnemyCollision(collision, "player_projectile", world);
 
         onCarCollision(collision, "car_wall", world);
     });
@@ -76,6 +79,21 @@ void CollisionResponseSystem::onPlayerCollision(const CollisionEvent &e, const c
             }
         }
     }
+
+    else if (tag == "enemy_projectile") {
+        if (e.state != CollisionState::Enter) return;
+
+        if (player->hasComponent<Health>() && other->hasComponent<Damage>()) {
+            auto& playerHealth = player->getComponent<Health>();
+            auto& damage = other->getComponent<Damage>();
+
+            playerHealth.currentHealth -= damage.damage;
+
+            if (playerHealth.currentHealth <= 0) {
+                Game::onSceneChangeRequest("level1");
+            }
+        }
+    }
 }
 
 void CollisionResponseSystem::onCarCollision(const CollisionEvent &e, const char *otherTag, World &world) {
@@ -94,23 +112,32 @@ void CollisionResponseSystem::onCarCollision(const CollisionEvent &e, const char
     }
 }
 
+void CollisionResponseSystem::onEnemyCollision(const CollisionEvent &e, const char *otherTag, World &world) {
+    Entity* enemy = nullptr;
+    Entity* other = nullptr;
 
-// void CollisionResponseSystem::onCollision(const CollisionEvent &e, const char *otherTag, World &world) {
-//
-//     //projectile collision
-//     else if (std::string(otherTag) == "enemy_projectile") {
-//         if (e.state != CollisionState::Enter) return;
-//
-//         auto& health = player->getComponent<Health>();
-//         health.currentHealth--;
-//         Game::gameState.playerHealth = health.currentHealth;
-//
-//         cout << "Health: " << health.currentHealth << endl;
-//
-//         if (health.currentHealth <= 0) {
-//             player->destroy();
-//             //change scenes defer
-//             Game::onSceneChangeRequest("gameover");
-//         }
-//     }
-// }
+    if (!getEntities(e, otherTag, enemy, other, "enemy")) return;
+
+    string otherEntityTag = string(otherTag);
+
+    if (otherEntityTag == "player_projectile") {
+        if (e.state != CollisionState::Enter) return;
+
+        if (enemy->hasComponent<Health>() && other->hasComponent<Damage>()) {
+            auto& enemyHealth = enemy->getComponent<Health>();
+            auto& damage = other->getComponent<Damage>();
+
+            enemyHealth.currentHealth -= damage.damage;
+
+            if (enemyHealth.currentHealth == 0 && enemy->hasComponent<Children>()) {
+                auto& enemyChildren = enemy->getComponent<Children>();
+                for (auto& childEntity : enemyChildren.children) {
+                    childEntity->destroy();
+                }
+                enemy->destroy();
+            }
+        }
+    }
+}
+
+
