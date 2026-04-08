@@ -5,34 +5,68 @@
 #ifndef MAP_HPP
 #define MAP_HPP
 
-// #include "Game.hpp"
 
 #include <vector>
-#include <SDL3/SDL.H>
 #include <Component.hpp>
 
 #include "tinyxml2.h"
-#include "Collision.hpp"
+
+struct Tileset {
+    std::string source; //tileset.tsx
+    int firstGid = 1;
+
+    int tileWidth = 16;
+    int tileHeight = 16;
+    int columns = 1;
+    int tileCount = 0;
+
+    SDL_Texture* texture = nullptr;
+};
+
+struct TileLayer {
+    std::string name;
+    int width = 0;
+    int height = 0;
+    std::vector<unsigned> data; // width * height gids
+};
+
+struct RectObject {
+    std::string name;
+    float x = 0.f;
+    float y = 0.f;
+    float w = 0.f;
+    float h = 0.f;
+};
+
+struct PointObject {
+    std::string name;
+    float x = 0.f;
+    float y = 0.f;
+};
 
 class Map {
 public:
-    Map() = default;
-    ~Map() = default;
+    bool loadFromTMX(const std::string& path);
+    void draw(const Camera& cam) const;
 
-    void load(const char *path, SDL_Texture *ts);
-    void draw(const Camera& cam);
-
-    SDL_Texture *tileset = nullptr;
-    int width{}, height{};
-    std::vector<std::vector<int>> tileData;
-    std::vector<Collider> regularColliders;
+    std::vector<Collider> playerColliders;
     std::vector<Collider> carColliders;
     std::vector<Collider> enemySpawnPoints;
-    std::vector<Collider> carSpawnPoint;
     std::vector<Collider> playerSpawnPoint;
+    std::vector<Collider> carSpawnPoint;
 
-private:
+    void drawLayer(const TileLayer& layer, const Camera& cam) const;
+    bool loadTSX(const std::string& tsxPath, int firstGid);
     void addToList(vector<Collider>& collisionList, tinyxml2::XMLElement* elem);
+
+    int width = 0;
+    int height = 0;
+    int tileWidth = 16;
+    int tileHeight = 16;
+
+    Tileset tileset;
+    std::vector<TileLayer> layers;
+
 };
 
 #endif //MAP_HPP

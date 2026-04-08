@@ -72,7 +72,7 @@ void Game::init(const char *title, int width, int height, bool fullscreen) {
 
     //load scenes
     sceneManager.loadScene(SceneType::MainMenu, "mainmenu", nullptr, width, height);
-    sceneManager.loadScene(SceneType::Gameplay, "level1", "../assets/map-data.tmx", width, height);
+    sceneManager.loadScene(SceneType::Gameplay, "level1", "../assets/map-data2.tmx", width, height);
 
     //init game data/state
     gameState.playerHealth = 10;
@@ -82,17 +82,7 @@ void Game::init(const char *title, int width, int height, bool fullscreen) {
 
     //resolve scene callback
     onSceneChangeRequest = [this](string sceneName) {
-        // if (sceneManager.currentScene->getName() == "gamewin" && sceneName=="gamewin") {
-        //     cout << "u win" << endl;
-        //     isRunning = false;
-        //     return;
-        // }
-        //
-        // if (sceneName == "gameover") {
-        //     cout << "u died" << endl;
-        //     isRunning = false;
-        //     return;
-        // }
+
 
         sceneManager.changeSceneDeferred(sceneName);
     };

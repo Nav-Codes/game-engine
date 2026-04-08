@@ -7,706 +7,287 @@
 #include <cmath>
 #include <iostream>
 #include <memory>
+#include <sstream>
+#include <filesystem>
+#include <algorithm>
+#include "tinyxml2.h"
 
 #include "manager/TextureManager.hpp"
-#include <sstream>
+#include "Game.hpp"
 
+using namespace tinyxml2;
 
-
-void Map::load(const char *path, SDL_Texture *ts) {
-    tileset = ts;
-    tinyxml2::XMLDocument doc;
-    doc.LoadFile(path);
-
-    //parse width and height
-    auto* mapNode = doc.FirstChildElement("map");
-    width = mapNode->IntAttribute("width");
-    height = mapNode->IntAttribute("height");
-
-    //parse terrain data
-    auto* layer = mapNode->FirstChildElement("layer");
-    auto* data = layer->FirstChildElement("data");
-
-    std::string csv = data->GetText();
+static std::vector<unsigned> parseCSV(const std::string& csv) {
+    std::vector<unsigned> result;
     std::stringstream ss(csv);
-    tileData = std::vector(height, std::vector<int>(width));
-    for (int i = 0; i < height; i++) {
-        for (int j = 0; j < width; j++) {
-            std::string val;
-            //read characters from a ss into val until it hits a comma or is at the end of the stream
-            if (!std::getline(ss, val, ',')) break;
-            tileData[i][j] = std::stoi(val); //
+    std::string item;
+
+    while (std::getline(ss, item, ',')) {
+        // trim whitespace/newlines
+        item.erase(std::remove_if(item.begin(), item.end(), ::isspace), item.end());
+        if (item.empty()) continue;
+        result.push_back(static_cast<unsigned>(std::stoul(item)));
+    }
+
+    return result;
+}
+
+bool Map::loadFromTMX(const std::string& path) {
+    XMLDocument doc;
+    if (doc.LoadFile(path.c_str()) != XML_SUCCESS) {
+        return false;
+    }
+
+    XMLElement* mapElem = doc.FirstChildElement("map");
+    if (!mapElem) return false;
+
+    width = mapElem->IntAttribute("width");
+    height = mapElem->IntAttribute("height");
+    tileWidth = mapElem->IntAttribute("tilewidth");
+    tileHeight = mapElem->IntAttribute("tileheight");
+
+    // --- tileset ---
+    XMLElement* tilesetElem = mapElem->FirstChildElement("tileset");
+    if (tilesetElem) {
+        int firstGid = tilesetElem->IntAttribute("firstgid");
+        const char* source = tilesetElem->Attribute("source");
+
+        if (source) {
+            std::filesystem::path tmxPath(path);
+            std::filesystem::path tsxPath = tmxPath.parent_path() / source;
+            if (!loadTSX(tsxPath.string(), firstGid)) {
+                return false;
+            }
         }
     }
 
-    //parse collider data
-    // auto* objectGroup = layer->NextSiblingElement("objectgroup");
+    // --- tile layers ---
+    for (XMLElement* layerElem = mapElem->FirstChildElement("layer");
+         layerElem;
+         layerElem = layerElem->NextSiblingElement("layer")) {
+
+        TileLayer layer;
+        if (const char* name = layerElem->Attribute("name")) {
+            layer.name = name;
+        }
+
+        layer.width = layerElem->IntAttribute("width");
+        layer.height = layerElem->IntAttribute("height");
+
+        XMLElement* dataElem = layerElem->FirstChildElement("data");
+        if (!dataElem) continue;
+
+        const char* encoding = dataElem->Attribute("encoding");
+        if (!encoding || std::string(encoding) != "csv") {
+            continue; // only handling CSV for now
+        }
+
+        const char* csvText = dataElem->GetText();
+        if (!csvText) continue;
+
+        layer.data = parseCSV(csvText);
+        layers.push_back(std::move(layer));
+    }
 
     tinyxml2::XMLElement* objectGroup = nullptr;
 
-    //car walls
-    for (auto* elem = mapNode->FirstChildElement("objectgroup"); elem != nullptr; elem = elem->NextSiblingElement("objectgroup")) {
+    //load wall colliders and spawn points
+    for (auto* elem = mapElem->FirstChildElement("objectgroup"); elem != nullptr; elem = elem->NextSiblingElement("objectgroup")) {
         const char* name = elem->Attribute("name");
         string strName = string(name);
 
+        //load car wall colliders
         if (name && std::string(name) == "Car Collision Layer") {
             addToList(carColliders, elem);
         }
 
+        //load player wall colliders
         if (name && std::string(name) == "Player Collision Layer") {
-            addToList(regularColliders, elem);
+            addToList(playerColliders, elem);
         }
 
+        //load enemy spawn points
         if (name && std::string(name) == "Enemy Spawn Points") {
             addToList(enemySpawnPoints, elem);
         }
 
+        //load car spawn point
         if (name && std::string(name) == "Car Spawn Point") {
             addToList(carSpawnPoint, elem);
         }
 
+        //load player spawn point
         if (name && std::string(name) == "Player Spawn Point") {
             addToList(playerSpawnPoint, elem);
         }
     }
+
+    return true;
 }
 
+bool Map::loadTSX(const std::string& tsxPath, int firstGid) {
+    XMLDocument doc;
+    if (doc.LoadFile(tsxPath.c_str()) != XML_SUCCESS) {
+        return false;
+    }
 
-void Map::draw(const Camera& cam) {
+    XMLElement* tsElem = doc.FirstChildElement("tileset");
+    if (!tsElem) return false;
+
+    tileset.firstGid = firstGid;
+    tileset.tileWidth = tsElem->IntAttribute("tilewidth");
+    tileset.tileHeight = tsElem->IntAttribute("tileheight");
+    tileset.tileCount = tsElem->IntAttribute("tilecount");
+    tileset.columns = tsElem->IntAttribute("columns");
+
+    XMLElement* imageElem = tsElem->FirstChildElement("image");
+    if (!imageElem) return false;
+
+    const char* imageSource = imageElem->Attribute("source");
+    if (!imageSource) return false;
+
+    std::filesystem::path p(tsxPath);
+    std::filesystem::path imagePath = p.parent_path() / imageSource;
+
+    tileset.source = imagePath.string();
+    tileset.texture = TextureManager::load(tileset.source.c_str());
+
+    return tileset.texture != nullptr;
+}
+
+void Map::draw(const Camera& cam) const {
+    for (const auto& layer : layers) {
+        drawLayer(layer, cam);
+    }
+}
+
+void Map::drawLayer(const TileLayer& layer, const Camera& cam) const {
+    if (!tileset.texture) return;
+
+    int startCol = std::max(0, static_cast<int>(cam.view.x) / tileWidth);
+    int endCol = std::min(layer.width, static_cast<int>(cam.view.x + cam.view.w) / tileWidth + 1);
+
+    int startRow = std::max(0, static_cast<int>(cam.view.y) / tileHeight);
+    int endRow = std::min(layer.height, static_cast<int>(cam.view.y + cam.view.h) / tileHeight + 1);
+
     SDL_FRect src{}, dest{};
+    src.w = static_cast<float>(tileset.tileWidth);
+    src.h = static_cast<float>(tileset.tileHeight);
+    dest.w = static_cast<float>(tileWidth);
+    dest.h = static_cast<float>(tileHeight);
 
-    dest.w = dest.h = 16;
+    for (int row = startRow; row < endRow; ++row) {
+        for (int col = startCol; col < endCol; ++col) {
+            unsigned gid = layer.data[row * layer.width + col];
+            if (gid == 0) continue; // empty tile
 
-    for (int row = 0; row < height; row++) {
-        for(int col = 0; col < width; col++) {
-            int type = tileData[row][col];
+            unsigned localId = gid - tileset.firstGid;
 
-            float worldX = static_cast<float>(col) * dest.w;
-            float worldY = static_cast<float>(row) * dest.h;
+            src.x = static_cast<float>((localId % tileset.columns) * tileset.tileWidth);
+            src.y = static_cast<float>((localId / tileset.columns) * tileset.tileHeight);
 
-            dest.x = std::round(worldX - cam.view.x);
-            dest.y = std::round(worldY - cam.view.y);
+            dest.x = std::round(col * tileWidth - cam.view.x);
+            dest.y = std::round(row * tileHeight - cam.view.y);
 
-            switch (type) {
-                case 2436:
-                    src.x = 48;
-                    src.y = 608;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 2582:
-                    src.x = 336;
-                    src.y = 640;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 3270:
-                    src.x = 80;
-                    src.y = 816;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 2708:
-                    src.x = 304;
-                    src.y = 672;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 712:
-                    src.x = 112;
-                    src.y = 176;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 713:
-                    src.x = 128;
-                    src.y = 176;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 714:
-                    src.x = 144;
-                    src.y = 176;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 776:
-                    src.x = 112;
-                    src.y = 192;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 777:
-                    src.x = 128;
-                    src.y = 192;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 778:
-                    src.x = 144;
-                    src.y = 192;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 840:
-                    src.x = 112;
-                    src.y = 208;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 841:
-                    src.x = 128;
-                    src.y = 208;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 842:
-                    src.x = 144;
-                    src.y = 208;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 1102:
-                    src.x = 208;
-                    src.y = 272;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 1103:
-                    src.x = 224;
-                    src.y = 272;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 1166:
-                    src.x = 208;
-                    src.y = 288;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 1167:
-                    src.x = 224;
-                    src.y = 288;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 1230:
-                    src.x = 208;
-                    src.y = 304;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 1231:
-                    src.x = 224;
-                    src.y = 304;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 2073:
-                    src.x = 384;
-                    src.y = 512;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 2137:
-                    src.x = 384;
-                    src.y = 528;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 2075:
-                    src.x = 384;
-                    src.y = 512;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 2139:
-                    src.x = 384;
-                    src.y = 528;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 3074:
-                    src.x = 16;
-                    src.y = 768;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 3078:
-                    src.x = 80;
-                    src.y = 768;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 3082:
-                    src.x = 144;
-                    src.y = 768;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 3202:
-                    src.x = 16;
-                    src.y = 864;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 3586:
-                    src.x = 16;
-                    src.y = 896;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 3588:
-                    src.x = 48;
-                    src.y = 896;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 3594:
-                    src.x = 144;
-                    src.y = 896;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 3210:
-                    src.x = 144;
-                    src.y = 800;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 3268:
-                    src.x = 48;
-                    src.y = 816;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 723:
-                    src.x = 288;
-                    src.y = 176;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 724:
-                    src.x = 304;
-                    src.y = 176;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 725:
-                    src.x = 320;
-                    src.y = 176;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 787:
-                    src.x = 288;
-                    src.y = 192;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 788:
-                    src.x = 304;
-                    src.y = 192;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 789:
-                    src.x = 320;
-                    src.y = 192;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 851:
-                    src.x = 288;
-                    src.y = 208;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 852:
-                    src.x = 304;
-                    src.y = 208;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 853:
-                    src.x = 320;
-                    src.y = 208;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 1096:
-                    src.x = 112;
-                    src.y = 272;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 1097:
-                    src.x = 128;
-                    src.y = 272;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 1098:
-                    src.x = 144;
-                    src.y = 272;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 1160:
-                    src.x = 112;
-                    src.y = 288;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 1161:
-                    src.x = 128;
-                    src.y = 288;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 1162:
-                    src.x = 144;
-                    src.y = 288;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 1224:
-                    src.x = 112;
-                    src.y = 304;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 1225:
-                    src.x = 128;
-                    src.y = 304;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 1226:
-                    src.x = 144;
-                    src.y = 304;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 2690:
-                    src.x = 16;
-                    src.y = 672;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 2450:
-                    src.x = 272;
-                    src.y = 608;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 670:
-                    src.x = 464;
-                    src.y = 160;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 2438:
-                    src.x = 80;
-                    src.y = 608;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 2566:
-                    src.x = 80;
-                    src.y = 640;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 2694:
-                    src.x = 80;
-                    src.y = 672;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 706:
-                    src.x = 16;
-                    src.y = 176;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 707:
-                    src.x = 32;
-                    src.y = 176;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 708:
-                    src.x = 48;
-                    src.y = 176;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 709:
-                    src.x = 64;
-                    src.y = 176;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 770:
-                    src.x = 16;
-                    src.y = 192;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 771:
-                    src.x = 32;
-                    src.y = 192;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 772:
-                    src.x = 48;
-                    src.y = 192;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 773:
-                    src.x = 64;
-                    src.y = 192;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 834:
-                    src.x = 16;
-                    src.y = 208;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 835:
-                    src.x = 32;
-                    src.y = 208;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 836:
-                    src.x = 48;
-                    src.y = 208;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 837:
-                    src.x = 64;
-                    src.y = 208;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 1090:
-                    src.x = 16;
-                    src.y = 272;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 1091:
-                    src.x = 32;
-                    src.y = 272;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 1092:
-                    src.x = 48;
-                    src.y = 272;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 1093:
-                    src.x = 64;
-                    src.y = 272;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 1154:
-                    src.x = 16;
-                    src.y = 288;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 1155:
-                    src.x = 32;
-                    src.y = 288;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 1156:
-                    src.x = 48;
-                    src.y = 288;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 1157:
-                    src.x = 64;
-                    src.y = 288;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 1218:
-                    src.x = 16;
-                    src.y = 304;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 1219:
-                    src.x = 32;
-                    src.y = 304;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 1220:
-                    src.x = 48;
-                    src.y = 304;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 1221:
-                    src.x = 64;
-                    src.y = 304;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 2562:
-                    src.x = 16;
-                    src.y = 640;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 141:
-                    src.x = 192;
-                    src.y = 32;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 142:
-                    src.x = 208;
-                    src.y = 32;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 143:
-                    src.x = 224;
-                    src.y = 32;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 205:
-                    src.x = 192;
-                    src.y = 48;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 206:
-                    src.x = 208;
-                    src.y = 48;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 207:
-                    src.x = 224;
-                    src.y = 48;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 269:
-                    src.x = 192;
-                    src.y = 64;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 270:
-                    src.x = 208;
-                    src.y = 64;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 271:
-                    src.x = 224;
-                    src.y = 64;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 333:
-                    src.x = 192;
-                    src.y = 80;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 334:
-                    src.x = 208;
-                    src.y = 80;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 335:
-                    src.x = 224;
-                    src.y = 80;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 397:
-                    src.x = 192;
-                    src.y = 96;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 398:
-                    src.x = 208;
-                    src.y = 96;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 399:
-                    src.x = 224;
-                    src.y = 96;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 461:
-                    src.x = 192;
-                    src.y = 112;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 462:
-                    src.x = 208;
-                    src.y = 112;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 463:
-                    src.x = 224;
-                    src.y = 112;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 2448:
-                    src.x = 240;
-                    src.y = 608;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 544:
-                    src.x = 496;
-                    src.y = 128;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                case 542:
-                    src.x = 464;
-                    src.y = 128;
-                    src.h = 16;
-                    src.w = 16;
-                    break;
-                default: break;
-            }
-
-            TextureManager::draw(tileset, &src, &dest);
+            // SDL_RenderTexture(Game::renderer, tileset.texture, &src, &dest);
+            TextureManager::draw(tileset.texture, &src, &dest);
         }
     }
 }
+
+// void Map::load(const char *path, SDL_Texture *ts) {
+//     tileset = ts;
+//     tinyxml2::XMLDocument doc;
+//     doc.LoadFile(path);
+//
+//     //parse width and height
+//     auto* mapNode = doc.FirstChildElement("map");
+//     width = mapNode->IntAttribute("width");
+//     height = mapNode->IntAttribute("height");
+//
+//     //parse terrain data
+//     auto* layer = mapNode->FirstChildElement("layer");
+//     auto* data = layer->FirstChildElement("data");
+//
+//     std::string csv = data->GetText();
+//     std::stringstream ss(csv);
+//     tileData = std::vector(height, std::vector<int>(width));
+//     for (int i = 0; i < height; i++) {
+//         for (int j = 0; j < width; j++) {
+//             std::string val;
+//             //read characters from a ss into val until it hits a comma or is at the end of the stream
+//             if (!std::getline(ss, val, ',')) break;
+//             tileData[i][j] = std::stoi(val); //
+//         }
+//     }
+//
+//     //parse collider data
+//     // auto* objectGroup = layer->NextSiblingElement("objectgroup");
+//
+//     tinyxml2::XMLElement* objectGroup = nullptr;
+//
+//     //load wall colliders and spawn points
+//     for (auto* elem = mapNode->FirstChildElement("objectgroup"); elem != nullptr; elem = elem->NextSiblingElement("objectgroup")) {
+//         const char* name = elem->Attribute("name");
+//         string strName = string(name);
+//
+//         //load car wall colliders
+//         if (name && std::string(name) == "Car Collision Layer") {
+//             addToList(carColliders, elem);
+//         }
+//
+//         //load player wall colliders
+//         if (name && std::string(name) == "Player Collision Layer") {
+//             addToList(playerColliders, elem);
+//         }
+//
+//         //load enemy spawn points
+//         if (name && std::string(name) == "Enemy Spawn Points") {
+//             addToList(enemySpawnPoints, elem);
+//         }
+//
+//         //load car spawn point
+//         if (name && std::string(name) == "Car Spawn Point") {
+//             addToList(carSpawnPoint, elem);
+//         }
+//
+//         //load player spawn point
+//         if (name && std::string(name) == "Player Spawn Point") {
+//             addToList(playerSpawnPoint, elem);
+//         }
+//     }
+// }
+//
+// void Map::draw(const Camera& cam) {
+//     SDL_FRect src{}, dest{};
+//     dest.w = static_cast<float>(tileset->w);
+//     dest.h = static_cast<float>(tileset->h);
+//
+//     for (int row = 0; row < height; ++row) {
+//         for (int col = 0; col < width; ++col) {
+//             int gid = tileData[row][col];
+//
+//             if (gid == 0) {
+//                 continue; // empty tile in TMX
+//             }
+//
+//             int localId = gid - tileset->refcount;
+//
+//             src.w = static_cast<float>(tileset.tileWidth);
+//             src.h = static_cast<float>(tileset.tileHeight);
+//             src.x = static_cast<float>((localId % tileset.columns) * tileset.tileWidth);
+//             src.y = static_cast<float>((localId / tileset.columns) * tileset.tileHeight);
+//
+//             float worldX = static_cast<float>(col * tileset.tileWidth);
+//             float worldY = static_cast<float>(row * tileset.tileHeight);
+//
+//             dest.x = std::round(worldX - cam.view.x);
+//             dest.y = std::round(worldY - cam.view.y);
+//
+//             SDL_RenderTextureF(Game::renderer, tileset.texture, &src, &dest);
+//         }
+//     }
+// }
 
 void Map::addToList(vector<Collider>& collisionList, tinyxml2::XMLElement* elem) {
     for (auto* obj = elem->FirstChildElement("object"); obj != nullptr; obj = obj->NextSiblingElement("object")) {

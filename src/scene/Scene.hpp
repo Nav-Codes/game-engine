@@ -31,7 +31,6 @@ public:
 private:
     string name;
     SceneType type;
-    // void createProjectile(Vector2D pos, Vector2D dir, int speed);
 
     void initMainMenu(int windowWidth, int windowHeight);
     void initGameplay(const char* mapPath, int windowWidth, int windowHeight);
@@ -42,7 +41,6 @@ private:
     void toggleSettingsOverlayVisibility(Entity& overlay);
 
     Entity& createPlayerPosLabel();
-    Entity& createPlayerWinLabel();
 };
 
 #endif //SCENE_HPP

@@ -23,9 +23,8 @@ Scene::Scene(SceneType sceneType, const char *sceneName, const char *mapPath, in
 }
 
 void Scene::initGameplay(const char *mapPath, int windowWidth, int windowHeight) {
-//load our map
-    world.getMap().load(mapPath, TextureManager::load("../assets/CP_V1.0.4.png"));
-
+    //load our map
+    world.getMap().loadFromTMX("../assets/map-data2.tmx");
     //create camera
     auto& cam = world.createEntity();
     SDL_FRect camView{};
@@ -34,7 +33,7 @@ void Scene::initGameplay(const char *mapPath, int windowWidth, int windowHeight)
     cam.addComponent<Camera>(camView, world.getMap().width * 16, world.getMap().height * 16);
 
     //get colliders and object groups
-    for (auto& object : world.getMap().regularColliders) {
+    for (auto& object : world.getMap().playerColliders) {
         auto& e = world.createEntity();
         e.addComponent<Transform>(Vector2D(object.rect.x, object.rect.y), 0.0f, 1.0f);
         auto& c = e.addComponent<Collider>("wall");
