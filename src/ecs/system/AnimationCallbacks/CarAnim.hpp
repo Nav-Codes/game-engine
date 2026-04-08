@@ -36,6 +36,9 @@ public:
             else if (anim.oldClip == "drive_south") {
                 newClip = "stop_facing_south";
             }
+            else {
+                newClip = "stop_facing_east";
+            }
         }
         else if (accel.direction == EAST) {
             newClip = anim.oldClip = "drive_east";

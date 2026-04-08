@@ -89,7 +89,7 @@ void KeyboardInputSystem::update(const std::vector<std::unique_ptr<Entity> > &en
                         north.oppositeDir = SOUTH;
                         north.turnDir1 = EAST;
                         north.turnDir2 = WEST;
-                        world.getEventManager().emit(CarActionEvent(north));
+                        world.getEventManager().emit(north);
                         break;
                     }
                     case SDLK_S: {
@@ -98,7 +98,7 @@ void KeyboardInputSystem::update(const std::vector<std::unique_ptr<Entity> > &en
                         south.oppositeDir = NORTH;
                         south.turnDir1 = EAST;
                         south.turnDir2 = WEST;
-                        world.getEventManager().emit(CarActionEvent(south));
+                        world.getEventManager().emit(south);
                         break;
                     }
                     case SDLK_A: {
@@ -107,7 +107,7 @@ void KeyboardInputSystem::update(const std::vector<std::unique_ptr<Entity> > &en
                         west.oppositeDir = EAST;
                         west.turnDir1 = NORTH;
                         west.turnDir2 = SOUTH;
-                        world.getEventManager().emit(CarActionEvent(west));
+                        world.getEventManager().emit(west);
                         break;
                     }
                     case SDLK_D: {
@@ -116,7 +116,7 @@ void KeyboardInputSystem::update(const std::vector<std::unique_ptr<Entity> > &en
                         east.oppositeDir = WEST;
                         east.turnDir1 = NORTH;
                         east.turnDir2 = SOUTH;
-                        world.getEventManager().emit(CarActionEvent(east));
+                        world.getEventManager().emit(east);
                         break;
                     }
                     default : break;
@@ -125,7 +125,6 @@ void KeyboardInputSystem::update(const std::vector<std::unique_ptr<Entity> > &en
             else if (event.type == SDL_EVENT_KEY_UP) {
                 SDL_Keycode key = event.key.key;
                 if (key == SDLK_W || key == SDLK_A || key == SDLK_S || key == SDLK_D) {
-
                     world.getEventManager().emit(CarActionEvent{e.get(), CarAction::Decelerate});
                 }
             }

@@ -115,7 +115,7 @@ void Scene::initGameplay(const char *mapPath, int windowWidth, int windowHeight)
     for (auto& object : world.getMap().carSpawnPoint) {
         auto& carTransform = car.addComponent<Transform>(Vector2D(object.rect.x, object.rect.y), 0.0f, 1.0f);
         car.addComponent<Velocity>(Vector2D(0.0f, 0.0f), 0.0f, 240.0f);
-        car.addComponent<Acceleration>(50.0f, SOUTH);
+        car.addComponent<Acceleration>(50.0f, EAST);
         car.addComponent<Brake>(4.0f);
         Animation carAnim = AssetManager::getAnimation("car");
         carAnim.animCallback = CarAnim::animCallback;

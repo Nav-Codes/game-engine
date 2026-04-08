@@ -35,16 +35,25 @@ void ActionResponseSystem::onCarAction(const CarActionEvent &e) {
     auto& b = car->getComponent<Brake>();
 
     if (e.action == CarAction::Accelerate) {
+        //braking
         if ((a.direction == e.oppositeDir && v.speed > ZERO_EPSILON) || (a.direction == e.dir && v.speed < -ZERO_EPSILON)) {
             a.isAccelerating = false;
             b.isBraking = true;
         }
+        //reversing
         else if (a.direction == e.oppositeDir && v.speed == 0.0f) {
             a.isAccelerating = true;
             b.isBraking = false;
             v.speed = -JUMP_START;
         }
-        else if (a.direction == e.dir || a.direction == e.turnDir1 || a.direction == e.turnDir2) {
+        //turning (only when moving)
+        else if ((a.direction == e.turnDir1 || a.direction == e.turnDir2) && v.speed != 0.0f) {
+            a.direction = v.speed > 0.0f ? e.dir : e.oppositeDir;
+            a.isAccelerating = true;
+            b.isBraking = false;
+        }
+        //accelerating
+        else if (a.direction == e.dir) {
             if (v.speed == 0.0f) {
                 v.speed = JUMP_START;
             }
