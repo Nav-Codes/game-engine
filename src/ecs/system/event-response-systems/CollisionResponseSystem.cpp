@@ -63,7 +63,7 @@ void CollisionResponseSystem::onPlayerCollision(const CollisionEvent &e, const c
 
     else if (tag == "car") {
         if (e.state == CollisionState::Stay) {
-            //when player gets out of the car
+            //when player gets out of the car, their position will be updated
             if (other->getComponent<CameraFocusTag>().active && other->getComponent<KeyboardFocusTag>().active) {
                 player->getComponent<Transform>().position = other->getComponent<Transform>().position;
             }

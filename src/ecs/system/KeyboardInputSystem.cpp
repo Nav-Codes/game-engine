@@ -18,11 +18,9 @@ void KeyboardInputSystem::update(const std::vector<std::unique_ptr<Entity> > &en
         }
 
         //player controls
-        if (e->hasComponent<PlayerTag>() && e->hasComponent<Velocity>() && e->hasComponent<PlayerAnimationState>()) {
-            if (e->hasComponent<KeyboardFocusTag>())
-                if (!e->getComponent<KeyboardFocusTag>().active)
-                    continue;
+        if (e->hasComponent<PlayerTag>() && e->hasComponent<KeyboardFocusTag>() && e->getComponent<KeyboardFocusTag>().active) {
 
+            if (!e->hasComponent<Velocity>() || !e->hasComponent<PlayerAnimationState>()) continue;
             auto& v = e->getComponent<Velocity>();
             auto& ps = e->getComponent<PlayerAnimationState>();
             if (event.type == SDL_EVENT_KEY_DOWN || event.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
