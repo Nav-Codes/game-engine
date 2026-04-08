@@ -51,21 +51,10 @@ void KeyboardInputSystem::update(const std::vector<std::unique_ptr<Entity> > &en
                 }
             }
             if (event.type == SDL_EVENT_KEY_UP || event.type == SDL_EVENT_MOUSE_BUTTON_UP) {
-                switch(event.key.key) {
-                    case SDLK_W :
-                        v.direction.y = 0;
-                        break;
-                    case SDLK_S :
-                        v.direction.y = 0;
-                        break;
-                    case SDLK_A :
-                        v.direction.x = 0;
-                        break;
-                    case SDLK_D :
-                        v.direction.x = 0;
-                        break;
-                    default : break;
-                }
+                if (event.key.key == SDLK_W || event.key.key == SDLK_S)
+                    v.direction.y = 0;
+                if (event.key.key == SDLK_A || event.key.key == SDLK_D)
+                    v.direction.x = 0;
                 if (event.type == SDL_EVENT_MOUSE_BUTTON_UP) {
                     if (v.direction.x == 0 && v.direction.y == 0) {
                         ps.animState = PlayerAnimation::Idle;
