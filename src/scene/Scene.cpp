@@ -106,6 +106,8 @@ void Scene::initGameplay(const char *mapPath, int windowWidth, int windowHeight)
         SDL_FPoint bulletCenter {bulletDst.w/2.0f, bulletDst.h/2.0f};
         bullet.addComponent<Target>(&cam, SDL_FPoint(), bulletCenter);
         bullet.addComponent<Damage>(1);
+        auto& bulletParent = bullet.addComponent<Parent>();
+        bulletParent.parent = &player;
         bullet.addComponent<ProjectileTag>();
     });
 
@@ -198,7 +200,6 @@ void Scene::initGameplay(const char *mapPath, int windowWidth, int windowHeight)
     // state.addComponent<SceneState>();
 
     createPlayerPosLabel();
-    createPlayerWinLabel();
 }
 
 Entity &Scene::createSettingsOverlay(int windowWidth, int windowHeight) {
@@ -325,24 +326,4 @@ Entity &Scene::createPlayerPosLabel() {
 
     playerPositionLabel.addComponent<Transform>(Vector2D(10, 10), 0.0f, 1.0f);
     return playerPositionLabel;
-}
-
-Entity &Scene::createPlayerWinLabel() {
-    auto& playerWinLabel(world.createEntity());
-
-    Label label = {
-        "You Win! Press R to restart",
-        AssetManager::getFont("arial"),
-        {0, 255, 0, 255},
-        LabelType::Win,
-        "playerWin"
-    };
-    label.dirty = true;
-    label.visible = false;
-
-    TextureManager::loadLabel(label);
-    playerWinLabel.addComponent<Label>(label);
-
-    playerWinLabel.addComponent<Transform>(Vector2D(300, 200), 0.0f, 1.0f);
-    return playerWinLabel;
 }

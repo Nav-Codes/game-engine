@@ -13,7 +13,7 @@ class ActionResponseSystem {
 public:
     ActionResponseSystem(World& world);
 
-    void onPlayerAction(const PlayerActionEvent& e);
+    void onPlayerAction(const PlayerActionEvent& e, World& world);
     void onCarAction(const CarActionEvent& e);
 };
 

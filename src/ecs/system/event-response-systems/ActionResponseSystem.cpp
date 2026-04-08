@@ -4,6 +4,7 @@
 
 #include "ActionResponseSystem.hpp"
 #include "World.hpp"
+#include "manager/AssetManager.hpp"
 
 ActionResponseSystem::ActionResponseSystem(World &world) {
     world.getEventManager().subscribe(
@@ -12,7 +13,7 @@ ActionResponseSystem::ActionResponseSystem(World &world) {
         if (e.type != EventType::PlayerAction) return;
         const auto& playerAction = static_cast<const PlayerActionEvent&>(e);
 
-        onPlayerAction(playerAction);
+        onPlayerAction(playerAction, world);
     });
 
     world.getEventManager().subscribe(
@@ -59,7 +60,7 @@ void ActionResponseSystem::onCarAction(const CarActionEvent &e) {
     }
 }
 
-void ActionResponseSystem::onPlayerAction(const PlayerActionEvent &e) {
+void ActionResponseSystem::onPlayerAction(const PlayerActionEvent &e, World& world) {
     // player and car interaction
     if (e.action == PlayerAction::CarInteract) {
         //things to do to player
@@ -83,6 +84,24 @@ void ActionResponseSystem::onPlayerAction(const PlayerActionEvent &e) {
             auto& carCameraTag = car->getComponent<CameraFocusTag>();
             carCameraTag.active = !carCameraTag.active;
         }
+    }
+    else if (e.action == PlayerAction::Win) {
+        auto& playerWinLabel(world.createEntity());
+
+        Label label = {
+            "You Win! Press R to restart",
+            AssetManager::getFont("arial"),
+            {0, 255, 0, 255},
+            LabelType::Win,
+            "playerWin"
+        };
+        label.dirty = true;
+        label.visible = true;
+
+        TextureManager::loadLabel(label);
+        playerWinLabel.addComponent<Label>(label);
+
+        playerWinLabel.addComponent<Transform>(Vector2D(300, 200), 0.0f, 1.0f);
     }
 }
 

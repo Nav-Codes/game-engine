@@ -37,12 +37,6 @@ void HUDSystem::update(const vector<unique_ptr<Entity> > &entities) {
                     label.color = {255, 0, 0, 255};
                 }
             }
-
-            else if (label.type == LabelType::Win) {
-                if (Game::gameState.numEnemies <= 0) {
-                    label.visible = true;
-                }
-            }
         }
     }
 }

@@ -151,6 +151,11 @@ void CollisionResponseSystem::onEnemyCollision(const CollisionEvent &e, const ch
                 }
                 enemy->destroy();
                 Game::gameState.numEnemies--;
+
+                if (Game::gameState.numEnemies <= 0) {
+                    //emit action to make win text pop up
+                    world.getEventManager().emit(PlayerActionEvent{other->getComponent<Parent>().parent, PlayerAction::Win});
+                }
             }
         }
     }
