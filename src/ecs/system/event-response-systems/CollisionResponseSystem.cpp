@@ -119,12 +119,6 @@ void CollisionResponseSystem::onCarCollision(const CollisionEvent &e, const char
             vel.speed = 0;
         }
     }
-
-    if (otherEntityTag == "enemy_projectile" || otherEntityTag == "player_projectile") {
-        if (e.state != CollisionState::Enter) return;
-
-        other->destroy();
-    }
 }
 
 void CollisionResponseSystem::onEnemyCollision(const CollisionEvent &e, const char *otherTag, World &world) {

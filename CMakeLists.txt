@@ -67,8 +67,8 @@ add_executable(game-engine src/main.cpp
         src/ecs/system/Direction.hpp
         src/ecs/system/PhysicsSystem.hpp
         src/ecs/event/BaseEvent.hpp
-        src/ecs/system/EventResponseSystem.hpp
-        src/ecs/system/EventResponseSystem.cpp
+        src/ecs/system/event-response-systems/MouseUIResponseSystem.hpp
+        src/ecs/system/event-response-systems/MouseUIResponseSystem.cpp
         src/scene/SceneType.hpp
         src/ecs/system/MainMenuSystem.hpp
         src/ecs/system/MainMenuSystem.cpp

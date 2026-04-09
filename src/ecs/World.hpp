@@ -12,7 +12,7 @@
 #include "CollisionSystem.hpp"
 #include "DestructionSystem.hpp"
 #include "Entity.hpp"
-#include "EventResponseSystem.hpp"
+#include "system/event-response-systems/MouseUIResponseSystem.hpp"
 #include "HUDSystem.hpp"
 #include "KeyboardInputSystem.hpp"
 #include "MainMenuSystem.hpp"
@@ -48,7 +48,7 @@ class World {
     EventManager eventManager;
     SpawnTimerSystem spawnTimerSystem;
     DestructionSystem destructionSystem;
-    EventResponseSystem eventResponseSystem{*this};
+    MouseUIResponseSystem eventResponseSystem{*this};
     ActionResponseSystem actionResponseSystem{*this};
     CollisionResponseSystem collisionResponseSystem{*this};
     MainMenuSystem mainMenuSystem;

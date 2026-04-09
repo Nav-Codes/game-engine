@@ -126,12 +126,12 @@ build CMakeFiles/game-engine.dir/src/scene/Scene.cpp.obj: CXX_COMPILER__game-eng
   OBJECT_DIR = CMakeFiles\game-engine.dir
   OBJECT_FILE_DIR = CMakeFiles\game-engine.dir\src\scene
 
-build CMakeFiles/game-engine.dir/src/ecs/system/EventResponseSystem.cpp.obj: CXX_COMPILER__game-engine_unscanned_Debug C$:/BCIT-Bachelors/Term2/8051-Game_Architecture/Project/game-engine/src/ecs/system/EventResponseSystem.cpp || cmake_object_order_depends_target_game-engine
-  DEP_FILE = CMakeFiles\game-engine.dir\src\ecs\system\EventResponseSystem.cpp.obj.d
+build CMakeFiles/game-engine.dir/src/ecs/system/event-response-systems/MouseUIResponseSystem.cpp.obj: CXX_COMPILER__game-engine_unscanned_Debug C$:/BCIT-Bachelors/Term2/8051-Game_Architecture/Project/game-engine/src/ecs/system/event-response-systems/MouseUIResponseSystem.cpp || cmake_object_order_depends_target_game-engine
+  DEP_FILE = CMakeFiles\game-engine.dir\src\ecs\system\event-response-systems\MouseUIResponseSystem.cpp.obj.d
   FLAGS = -g -std=gnu++20 -fdiagnostics-color=always
   INCLUDES = -I"C:/Program Files/SDL/sdl3/include" -I"C:/Program Files/SDL/sdl3_image/include" -I"C:/Program Files/SDL/sdl3_ttf/include" -IC:/BCIT-Bachelors/Term2/8051-Game_Architecture/Project/game-engine/src -IC:/BCIT-Bachelors/Term2/8051-Game_Architecture/Project/game-engine/src/utils -IC:/BCIT-Bachelors/Term2/8051-Game_Architecture/Project/game-engine/src/ecs -IC:/BCIT-Bachelors/Term2/8051-Game_Architecture/Project/game-engine/src/ecs/system -IC:/BCIT-Bachelors/Term2/8051-Game_Architecture/Project/game-engine/src/vendor
   OBJECT_DIR = CMakeFiles\game-engine.dir
-  OBJECT_FILE_DIR = CMakeFiles\game-engine.dir\src\ecs\system
+  OBJECT_FILE_DIR = CMakeFiles\game-engine.dir\src\ecs\system\event-response-systems
 
 build CMakeFiles/game-engine.dir/src/ecs/system/MainMenuSystem.cpp.obj: CXX_COMPILER__game-engine_unscanned_Debug C$:/BCIT-Bachelors/Term2/8051-Game_Architecture/Project/game-engine/src/ecs/system/MainMenuSystem.cpp || cmake_object_order_depends_target_game-engine
   DEP_FILE = CMakeFiles\game-engine.dir\src\ecs\system\MainMenuSystem.cpp.obj.d
@@ -183,7 +183,7 @@ build CMakeFiles/game-engine.dir/src/ecs/system/HUDSystem.cpp.obj: CXX_COMPILER_
 #############################################
 # Link the executable game-engine.exe
 
-build game-engine.exe: CXX_EXECUTABLE_LINKER__game-engine_Debug CMakeFiles/game-engine.dir/src/main.cpp.obj CMakeFiles/game-engine.dir/src/Game.cpp.obj CMakeFiles/game-engine.dir/src/manager/TextureManager.cpp.obj CMakeFiles/game-engine.dir/src/Map.cpp.obj CMakeFiles/game-engine.dir/src/GameObject.cpp.obj CMakeFiles/game-engine.dir/src/utils/Vector2D.cpp.obj CMakeFiles/game-engine.dir/src/utils/Collision.cpp.obj CMakeFiles/game-engine.dir/src/ecs/system/CollisionSystem.cpp.obj CMakeFiles/game-engine.dir/src/vendor/tinyxml2.cpp.obj CMakeFiles/game-engine.dir/src/manager/AssetManager.cpp.obj CMakeFiles/game-engine.dir/src/scene/Scene.cpp.obj CMakeFiles/game-engine.dir/src/ecs/system/EventResponseSystem.cpp.obj CMakeFiles/game-engine.dir/src/ecs/system/MainMenuSystem.cpp.obj CMakeFiles/game-engine.dir/src/ecs/system/MouseInputSystem.cpp.obj CMakeFiles/game-engine.dir/src/ecs/system/KeyboardInputSystem.cpp.obj CMakeFiles/game-engine.dir/src/ecs/system/event-response-systems/ActionResponseSystem.cpp.obj CMakeFiles/game-engine.dir/src/ecs/system/event-response-systems/CollisionResponseSystem.cpp.obj CMakeFiles/game-engine.dir/src/ecs/system/HUDSystem.cpp.obj
+build game-engine.exe: CXX_EXECUTABLE_LINKER__game-engine_Debug CMakeFiles/game-engine.dir/src/main.cpp.obj CMakeFiles/game-engine.dir/src/Game.cpp.obj CMakeFiles/game-engine.dir/src/manager/TextureManager.cpp.obj CMakeFiles/game-engine.dir/src/Map.cpp.obj CMakeFiles/game-engine.dir/src/GameObject.cpp.obj CMakeFiles/game-engine.dir/src/utils/Vector2D.cpp.obj CMakeFiles/game-engine.dir/src/utils/Collision.cpp.obj CMakeFiles/game-engine.dir/src/ecs/system/CollisionSystem.cpp.obj CMakeFiles/game-engine.dir/src/vendor/tinyxml2.cpp.obj CMakeFiles/game-engine.dir/src/manager/AssetManager.cpp.obj CMakeFiles/game-engine.dir/src/scene/Scene.cpp.obj CMakeFiles/game-engine.dir/src/ecs/system/event-response-systems/MouseUIResponseSystem.cpp.obj CMakeFiles/game-engine.dir/src/ecs/system/MainMenuSystem.cpp.obj CMakeFiles/game-engine.dir/src/ecs/system/MouseInputSystem.cpp.obj CMakeFiles/game-engine.dir/src/ecs/system/KeyboardInputSystem.cpp.obj CMakeFiles/game-engine.dir/src/ecs/system/event-response-systems/ActionResponseSystem.cpp.obj CMakeFiles/game-engine.dir/src/ecs/system/event-response-systems/CollisionResponseSystem.cpp.obj CMakeFiles/game-engine.dir/src/ecs/system/HUDSystem.cpp.obj
   FLAGS = -g
   LINK_LIBRARIES = -lSDL3  -lSDL3_IMAGE  -lSDL3_ttf  -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   LINK_PATH = -LC:/PROGRA~1/SDL/sdl3/lib   -LC:/PROGRA~1/SDL/SDL3_I~1/lib   -LC:/PROGRA~1/SDL/sdl3_ttf/lib
